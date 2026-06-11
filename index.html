@@ -58,13 +58,20 @@
             z-index: 2;
         }
 
-        /* Estilo para a arte ASCII do logótipo */
-        .logo-ascii {
-            font-size: 14px;
-            line-height: 1.1;
-            white-space: pre;
-            margin-bottom: 20px;
-            text-shadow: 0 0 8px rgba(255, 176, 0, 0.8);
+        /* Estilo da Imagem do Logótipo Retro */
+        .logo-container {
+            display: block;
+            margin: 20px auto;
+            text-align: center;
+        }
+
+        .retro-logo {
+            max-width: 250px;
+            height: auto;
+            /* Filtros para misturar a imagem com o fósforo âmbar do ecrã */
+            filter: grayscale(1) sepia(1) saturate(5) hue-rotate(5deg) brightness(0.9) contrast(1.2);
+            opacity: 0.85;
+            box-shadow: 0 0 10px rgba(255, 176, 0, 0.2);
         }
 
         .retro-btn {
@@ -87,13 +94,10 @@
             text-shadow: none;
         }
 
-        #intro-screen {
-            display: block;
-        }
-
-        #boot-header, #main-content {
-            display: none;
-        }
+        /* Controlos de Exibição */
+        #intro-screen { display: block; }
+        #boot-header { display: none; }
+        #main-content { display: none; }
 
         table {
             width: 100%;
@@ -107,14 +111,9 @@
             text-align: left;
         }
 
-        th {
-            background-color: rgba(255, 176, 0, 0.2);
-        }
+        th { background-color: rgba(255, 176, 0, 0.2); }
 
-        .input-line {
-            display: flex;
-            align-items: center;
-        }
+        .input-line { display: flex; align-items: center; }
 
         #terminal-input {
             background: transparent;
@@ -136,21 +135,21 @@
             min-height: 80px;
         }
 
-        .nav-actions {
-            margin-top: 20px;
-        }
+        .nav-actions { margin-top: 20px; }
     </style>
 </head>
 <body>
     <div class="terminal">
         <!-- 1. SECÇÃO DA ANIMAÇÃO DE INTRODUÇÃO -->
         <div id="intro-screen">
-            <!-- Logótipo I.C.C. em Bloco ASCII -->
-            <div class="logo-ascii" id="boot-logo"></div>
             <p id="boot-text-1"></p>
             <p id="boot-text-2"></p>
             <p id="boot-text-3"></p>
             <p id="boot-text-4"></p>
+            <!-- Contentor do Logótipo (vai aparecer durante o boot) -->
+            <div id="logo-area" class="logo-container" style="display: none;">
+                <img src="logo.png" alt="I.C.C. Logo" class="retro-logo">
+            </div>
         </div>
 
         <!-- 2. CABEÇALHO DO SISTEMA -->
@@ -158,7 +157,6 @@
             <p>IBM 3151 ASCII DISPLAY STATION — V1.0</p>
             <p>SISTEMA OPERATIVO RETRO CARREGADO COM SUCESSO.</p>
             <hr style="border: 1px dashed #ffb000;">
-            
             <button id="index-button" class="retro-btn" onclick="iniciarPainel()">[ ACEDER AO DIRETÓRIO PRINCIPAL ]</button>
         </div>
 
@@ -208,62 +206,44 @@
     </div>
 
     <script>
-        // --- LOGICA DA ANIMAÇÃO DE INTRODUÇÃO ---
+        // --- ANIMAÇÃO DE BOOT SEGURO ---
         window.addEventListener('DOMContentLoaded', () => {
-            const logoEl = document.getElementById('boot-logo');
             const t1 = document.getElementById('boot-text-1');
             const t2 = document.getElementById('boot-text-2');
             const t3 = document.getElementById('boot-text-3');
             const t4 = document.getElementById('boot-text-4');
+            const logoArea = document.getElementById('logo-area');
 
-            // Desenho ASCII inspirado no emblema circular e estrela central do I.C.C.
-            const iccLogo = 
-`        _.-'''''''-._
-      .'  ________   '.
-     /   /   /\\   \\   \\     INTERPLANETARY COLONIAL COUNCIL
-
-    |   |  _/__\\_  |   |          INITIALIZING TERMINAL
-    |   |  \\  /  / |   |
-     \\   \\  \\/  / /   /            - SECURE LINK ONLY -
-      '.  '------'  .'
-        '-.______.-'
-            I.C.C.`;
-
-            // Mostra o logótipo imediatamente
-            logoEl.innerHTML = iccLogo;
-
-            // Linha 1: Identificar a autoridade do sistema
-            setTimeout(() => { t1.innerHTML = "I.C.C. CENTRAL MAINFRAME v4.11 - MAIN TERMINAL ONLINE."; }, 400);
+            // Passo 1: Iniciar log de hardware
+            setTimeout(() => { t1.innerHTML = "IBM BIOS CORE v0.87 - COPYRIGHT IBM CORP 1987."; }, 200);
             
-            // Linha 2: Teste de Memória RAM
+            // Passo 2: Contagem RAM
             setTimeout(() => {
                 let ram = 0;
                 let interval = setInterval(() => {
                     ram += 64;
-                    t2.innerHTML = `DECRYPTING DATA CORE: ${ram}KB OK`;
+                    t2.innerHTML = `TESTING SYSTEM RAM: ${ram}KB OK`;
                     if (ram >= 640) {
                         clearInterval(interval);
-                        carregarRestoIntro();
+                        // Passo 3: Mostrar Conexão e fazer o Logótipo aparecer
+                        setTimeout(() => { 
+                            t3.innerHTML = "CONNECTING TO HOST AT I.C.C. MAIN FRAME... ESTABLISHED."; 
+                            logoArea.style.display = "block"; // Revela o logótipo aqui
+                        }, 200);
+                        
+                        // Passo 4: Conclusão
+                        setTimeout(() => { t4.innerHTML = "BOOT SEQUENCE COMPLETE. INITIALIZING INTERFACE..."; }, 1400);
+
+                        // Passo 5: Transição para o Menu Principal
+                        setTimeout(() => {
+                            document.getElementById('intro-screen').style.display = 'none';
+                            document.getElementById('boot-header').style.display = 'block';
+                        }, 3000);
                     }
-                }, 60);
-            }, 1000);
-
-            function carregarRestoIntro() {
-                // Linha 3: Conexão segura
-                setTimeout(() => { t3.innerHTML = "SECURE NETWORK ACCESS AUTHORIZED BY COLONIAL COUNCIL."; }, 300);
-                
-                // Linha 4: Sequência finalizada
-                setTimeout(() => { t4.innerHTML = "SYSTEM READY. REDIRECTING USER TO DIRECTORY..."; }, 1500);
-
-                // Passa para o botão de entrada
-                setTimeout(() => {
-                    document.getElementById('intro-screen').style.display = 'none';
-                    document.getElementById('boot-header').style.display = 'block';
-                }, 3500);
-            }
+                }, 50);
+            }, 600);
         });
 
-        // --- SISTEMA DE NAVEGAÇÃO ---
         function iniciarPainel() {
             document.getElementById('index-button').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
@@ -287,3 +267,4 @@
         }
 
         const ficheiros = {
+            "01": "FICHEIRO: sobre_mim.txt<br>------------------<br>Olá! Eu sou o smiles035. Desenvolvi este sistema para simular a interface de um terminal clássico da IBM lançado originalmente em 1987.",
