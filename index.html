@@ -48,19 +48,29 @@
             z-index: 2;
         }
 
+        /* LOGÓTIPO FIXO NO CANTO SUPERIOR ESQUERDO */
+        .corner-logo {
+            position: absolute;
+            top: -20px;
+            left: 0;
+            max-width: 100px; /* Tamanho reduzido para caber discretamente no canto */
+            height: auto;
+            mix-blend-mode: screen; 
+            filter: brightness(1.2) contrast(1.5) sepia(1) saturate(12) hue-rotate(5deg);
+            opacity: 0.85;
+            display: none; /* Escondido apenas durante o teste de boot inicial */
+        }
+
         .logo-container {
             display: block;
             margin: 25px auto;
             text-align: center;
         }
 
-        /* AJUSTE GRÁFICO DO LOGÓTIPO */
         .retro-logo {
             max-width: 260px;
             height: auto;
-            /* O segredo: elimina o fundo branco da imagem */
             mix-blend-mode: screen; 
-            /* Filtros calibrados para destacar os detalhes do brasão da I.C.C. em âmbar */
             filter: brightness(1.2) contrast(1.5) sepia(1) saturate(12) hue-rotate(5deg);
             opacity: 0.9;
         }
@@ -117,10 +127,18 @@
             background: rgba(255, 176, 0, 0.03);
             display: none;
         }
+
+        /* Empurra o cabeçalho para o lado para não chocar com o logo */
+        .header-text {
+            margin-left: 120px;
+        }
     </style>
 </head>
 <body>
     <div class="terminal">
+        <!-- Logótipo Fixo Permanente (Ativado via JS após o Boot) -->
+        <img id="static-logo" src="https://googleapis.com" alt="I.C.C. Corner Logo" class="corner-logo">
+
         <!-- INTRO -->
         <div id="intro-screen" style="display: block;">
             <p id="boot-1"></p>
@@ -133,16 +151,20 @@
 
         <!-- MENU INICIAL -->
         <div id="boot-header" style="display: none;">
-            <p>IBM 3151 ASCII DISPLAY STATION — V1.0</p>
-            <p>SISTEMA OPERATIVO RETRO CARREGADO COM SUCESSO.</p>
-            <hr style="border: 1px dashed #ffb000;">
-            <button class="retro-btn" onclick="iniciarPainel()">[ ACEDER AO DIRETÓRIO PRINCIPAL ]</button>
+            <div class="header-text">
+                <p>IBM 3151 ASCII DISPLAY STATION — V1.0</p>
+                <p>SISTEMA OPERATIVO RETRO CARREGADO COM SUCESSO.</p>
+                <hr style="border: 1px dashed #ffb000;">
+                <button class="retro-btn" onclick="iniciarPainel()">[ ACEDER AO DIRETÓRIO PRINCIPAL ]</button>
+            </div>
         </div>
 
         <!-- PAINEL DE COMANDOS -->
         <div id="main-content" style="display: none;">
-            <p>[ DIRETÓRIO PRINCIPAL ]</p>
-            <p>Insira um ID para ler um ficheiro ou 'menu' para voltar:</p>
+            <div class="header-text">
+                <p>[ DIRETÓRIO PRINCIPAL ]</p>
+                <p>Insira um ID para ler um ficheiro ou 'menu' para voltar:</p>
+            </div>
 
             <table>
                 <thead>
@@ -179,9 +201,12 @@
                 document.getElementById('logo-area').style.display = "block";
             }, 1400);
             setTimeout(() => {
+                // Desliga a intro e liga o menu
                 document.getElementById('intro-screen').style.display = "none";
                 document.getElementById('boot-header').style.display = "block";
-            }, 4500); // Dei mais 1 segundo para dar tempo de contemplar o logótipo corrigido
+                // Ativa o logótipo permanente no canto
+                document.getElementById('static-logo').style.display = "block";
+            }, 4500);
         });
 
         function iniciarPainel() {
