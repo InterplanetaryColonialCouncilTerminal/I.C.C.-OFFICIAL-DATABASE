@@ -50,15 +50,19 @@
 
         .logo-container {
             display: block;
-            margin: 20px auto;
+            margin: 25px auto;
             text-align: center;
         }
 
+        /* AJUSTE GRÁFICO DO LOGÓTIPO */
         .retro-logo {
-            max-width: 220px;
+            max-width: 260px;
             height: auto;
-            filter: grayscale(1) sepia(1) saturate(8) hue-rotate(5deg) brightness(1.1) contrast(1.4);
-            opacity: 0.85;
+            /* O segredo: elimina o fundo branco da imagem */
+            mix-blend-mode: screen; 
+            /* Filtros calibrados para destacar os detalhes do brasão da I.C.C. em âmbar */
+            filter: brightness(1.2) contrast(1.5) sepia(1) saturate(12) hue-rotate(5deg);
+            opacity: 0.9;
         }
 
         .retro-btn {
@@ -103,6 +107,7 @@
             font-size: 24px;
             outline: none;
             width: 100%;
+            text-shadow: 0 0 6px rgba(255, 176, 0, 0.6);
         }
 
         #output-box {
@@ -161,12 +166,11 @@
                 <input type="text" id="terminal-input" autocomplete="off">
             </div>
             <br>
-            <button class="retro-btn" onclick="voltarMenu()">[ VOLTAR AL INÍCIO ]</button>
+            <button class="retro-btn" onclick="voltarMenu()">[ VOLTAR AO INÍCIO ]</button>
         </div>
     </div>
 
     <script>
-        // Sequência estrita de carregamento
         window.addEventListener('load', () => {
             setTimeout(() => { document.getElementById('boot-1').innerHTML = "IBM BIOS CORE v0.87 - CORP 1987."; }, 200);
             setTimeout(() => { document.getElementById('boot-2').innerHTML = "SYSTEM RAM: 640KB OK"; }, 800);
@@ -177,7 +181,7 @@
             setTimeout(() => {
                 document.getElementById('intro-screen').style.display = "none";
                 document.getElementById('boot-header').style.display = "block";
-            }, 3500);
+            }, 4500); // Dei mais 1 segundo para dar tempo de contemplar o logótipo corrigido
         });
 
         function iniciarPainel() {
@@ -194,7 +198,7 @@
 
         const ficheiros = {
             "01": "FICHEIRO: sobre_mim.txt<br>------------------<br>Olá! Eu sou o smiles035. Bem-vindo à base de dados oficial da I.C.C.",
-            "02": "FICHEIRO: notas.txt<br>-------------<br>[2026] Sistema publicado com sucesso no GitHub Pages.",
+            "02": "FICHEIRO: notas.txt<br>-------------<br>Sistema publicado com sucesso no GitHub Pages.",
             "ajuda": "COMANDOS DISPONÍVEIS:<br>01 - abrir sobre_mim.txt<br>02 - abrir notas.txt<br>limpar - fechar texto"
         };
 
