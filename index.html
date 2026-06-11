@@ -48,12 +48,11 @@
             z-index: 2;
         }
 
-        /* AJUSTE DO LOGÓTIPO DO CANTO */
         .corner-logo {
             position: absolute;
             top: -20px;
             left: 0;
-            max-width: 90px; /* Tamanho calibrado para o canto */
+            max-width: 90px;
             height: auto;
             mix-blend-mode: screen; 
             filter: brightness(1.2) contrast(1.5) sepia(1) saturate(12) hue-rotate(5deg);
@@ -128,18 +127,23 @@
             display: none;
         }
 
-        .header-text {
-            margin-left: 120px;
-        }
+        .header-text { margin-left: 120px; }
+        
+        #intro-screen { display: none; }
+        #power-on-screen { display: block; text-align: center; margin-top: 100px; }
     </style>
 </head>
 <body>
     <div class="terminal">
-        <!-- Corrigido: Agora aponta diretamente para o seu ficheiro local logo.png -->
         <img id="static-logo" src="logo.png" alt="Logo" class="corner-logo">
 
-        <!-- INTRO -->
-        <div id="intro-screen" style="display: block;">
+        <!-- BOTÃO DE ENERGIA (Garante que os sons funcionam sem bloqueio do browser) -->
+        <div id="power-on-screen">
+            <button class="retro-btn" onclick="ligarMonitor()">[ LIGAR TERMINAL IBM 3151 ]</button>
+        </div>
+
+        <!-- INTRO COM ANIMAÇÃO TYPEWRITER -->
+        <div id="intro-screen">
             <p id="boot-1"></p>
             <p id="boot-2"></p>
             <p id="boot-3"></p>
@@ -158,11 +162,11 @@
             </div>
         </div>
 
-        <!-- PAINEL DE COMANDOS -->
+        <!-- PAINEL DE COMANDOS (TABELA COM IDS OCULTOS) -->
         <div id="main-content" style="display: none;">
             <div class="header-text">
-                <p>[ DIRETÓRIO PRINCIPAL ]</p>
-                <p>Insira um ID para ler um ficheiro ou 'menu' para voltar:</p>
+                <p>[ DIRETÓRIO SECRETO I.C.C. ]</p>
+                <p>Aviso: Os IDs de ficheiros confidenciais estão ocultos do índice.</p>
             </div>
 
             <table>
@@ -170,13 +174,13 @@
                     <tr>
                         <th>ID</th>
                         <th>NOME DO FICHEIRO</th>
-                        <th>DESCRIÇÃO</th>
+                        <th>ESTADO DE ACESSO</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr><td>01</td><td>sobre_mim.txt</td><td>Informações sobre o autor.</td></tr>
-                    <tr><td>02</td><td>notas.txt</td><td>Updates do servidor.</td></tr>
-                    <tr><td>ajuda</td><td>ajuda.sys</td><td>Instruções do sistema.</td></tr>
+                    <!-- Os IDs 01 e 02 foram removidos daqui, mas funcionam no comando -->
+                    <tr><td>ajuda</td><td>ajuda.sys</td><td>PÚBLICO</td></tr>
+                    <tr><td>limpar</td><td>limpar.sys</td><td>PÚBLICO</td></tr>
                 </tbody>
             </table>
 
@@ -184,7 +188,7 @@
             <br>
             <div class="input-line">
                 <span>COMANDO:> &nbsp;</span>
-                <input type="text" id="terminal-input" autocomplete="off">
+                <input type="text" id="terminal-input" autocomplete="off" placeholder="Insira credencial...">
             </div>
             <br>
             <button class="retro-btn" onclick="voltarMenu()">[ VOLTAR AO INÍCIO ]</button>
@@ -192,58 +196,87 @@
     </div>
 
     <script>
-        window.addEventListener('load', () => {
-            setTimeout(() => { document.getElementById('boot-1').innerHTML = "IBM BIOS CORE v0.87 - CORP 1987."; }, 200);
-            setTimeout(() => { document.getElementById('boot-2').innerHTML = "SYSTEM RAM: 640KB OK"; }, 800);
-            setTimeout(() => { 
-                document.getElementById('boot-3').innerHTML = "CONNECTING TO I.C.C. MAIN FRAME..."; 
-                document.getElementById('logo-area').style.display = "block";
-            }, 1400);
-            setTimeout(() => {
-                document.getElementById('intro-screen').style.display = "none";
-                document.getElementById('boot-header').style.display = "block";
-                document.getElementById('static-logo').style.display = "block";
-            }, 4500);
-        });
+        let audioCtx = null;
+
+        // Gerador de Som das Teclas Mecânicas
+        function playKeySound() {
+            if (!audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle'; 
+                osc.frequency.setValueAtTime(130, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.03, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.02);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.02);
+            } catch(e) {}
+        }
+
+        function playBeepSound() {
+            if (!audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(700, audioCtx.currentTime);
+                gain.gain.setValueAtTime(0.06, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.1);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.1);
+            } catch(e) {}
+        }
+
+        // Função de Escrita Letra a Letra com Som
+        function typeWriter(elementId, text, speed, callback) {
+            let i = 0;
+            const element = document.getElementById(elementId);
+            element.innerHTML = "";
+            
+            function type() {
+                if (i < text.length) {
+                    if (text.charAt(i) !== ' ') playKeySound();
+                    element.innerHTML += text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else if (callback) {
+                    callback();
+                }
+            }
+            type();
+        }
+
+        // Ligar o monitor e correr a Intro com som garantido
+        function ligarMonitor() {
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            playBeepSound();
+            
+            document.getElementById('power-on-screen').style.display = "none";
+            document.getElementById('intro-screen').style.display = "block";
+
+            // Inicia a sequência de boot falada letra a letra
+            typeWriter("boot-1", "IBM BIOS CORE v0.87 - CORP 1987.", 30, () => {
+                typeWriter("boot-2", "SYSTEM RAM: 640KB OK (SECURE CHANNEL ACTIVATED)", 20, () => {
+                    playBeepSound();
+                    document.getElementById('boot-3').innerHTML = "CONNECTING TO I.C.C. CODES CORE...";
+                    document.getElementById('logo-area').style.display = "block";
+                    
+                    setTimeout(() => {
+                        document.getElementById('intro-screen').style.display = "none";
+                        document.getElementById('boot-header').style.display = "block";
+                        document.getElementById('static-logo').style.display = "block";
+                        playBeepSound();
+                    }, 2500);
+                });
+            });
+        }
 
         function iniciarPainel() {
+            playBeepSound();
             document.getElementById('boot-header').style.display = "none";
             document.getElementById('main-content').style.display = "block";
             document.getElementById('output-box').style.display = "none";
-            document.getElementById('terminal-input').focus();
-        }
-
-        function voltarMenu() {
-            document.getElementById('main-content').style.display = "none";
-            document.getElementById('boot-header').style.display = "block";
-        }
-
-        const ficheiros = {
-            "01": "FICHEIRO: sobre_mim.txt<br>------------------<br>Olá! Eu sou o smiles035. Bem-vindo à base de dados oficial da I.C.C.",
-            "02": "FICHEIRO: notas.txt<br>-------------<br>Sistema publicado com sucesso no GitHub Pages.",
-            "ajuda": "COMANDOS DISPONÍVEIS:<br>01 - abrir sobre_mim.txt<br>02 - abrir notas.txt<br>limpar - fechar texto"
-        };
-
-        const input = document.getElementById('terminal-input');
-        const outputBox = document.getElementById('output-box');
-
-        input.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') {
-                const comando = input.value.trim().toLowerCase();
-                if (comando === 'menu') {
-                    voltarMenu();
-                } else if (ficheiros[comando]) {
-                    outputBox.innerHTML = ficheiros[comando];
-                    outputBox.style.display = 'block';
-                } else if (comando === 'limpar') {
-                    outputBox.style.display = 'none';
-                } else if (comando !== "") {
-                    outputBox.innerHTML = `ERRO: Comando '${comando}' inválido. Digite 'ajuda'.`;
-                    outputBox.style.display = 'block';
-                }
-                input.value = '';
-            }
-        });
-    </script>
-</body>
-</html>
