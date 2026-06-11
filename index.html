@@ -2,6 +2,9 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv='cache-control' content='no-cache'>
+    <meta http-equiv='expires' content='0'>
+    <meta http-equiv='pragma' content='no-cache'>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terminal IBM 3151</title>
     <style>
@@ -127,10 +130,9 @@
         <p>SISTEMA OPERATIVO RETRO CARREGADO COM SUCESSO.</p>
         <hr style="border: 1px dashed #ffb000;">
         
-        <!-- Botão Inicial -->
-        <button id="index-button" class="retro-btn" onclick="revealDirectory()">[ ACEDER AO DIRETÓRIO PRINCIPAL ]</button>
+        <!-- MUDANÇA CLAVE: O botão agora chama a nova função "iniciarPainel" -->
+        <button id="index-button" class="retro-btn" onclick="iniciarPainel()">[ ACEDER AO DIRETÓRIO PRINCIPAL ]</button>
 
-        <!-- Conteúdo Oculto -->
         <div id="main-content">
             <p id="directory-title"></p>
             <p id="directory-subtitle"></p>
@@ -173,115 +175,57 @@
     </div>
 
     <script>
-        let audioCtx = null;
-
-        function playKeySound() {
-            if (!audioCtx) return;
-            try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'triangle'; 
-                osc.frequency.setValueAtTime(140, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.02);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.02);
-            } catch(e) {}
-        }
-
-        function playBeepSound() {
-            if (!audioCtx) return;
-            try {
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(750, audioCtx.currentTime);
-                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.12);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.12);
-            } catch(e) {}
-        }
-
-        function typeWriterEffect(element, text, speed, callback) {
-            let i = 0;
-            element.innerHTML = "";
-            function type() {
-                if (i < text.length) {
-                    if (text.charAt(i) !== ' ') playKeySound();
-                    element.innerHTML += text.charAt(i);
-                    i++;
-                    setTimeout(type, speed);
-                } else if (callback) {
-                    callback();
-                }
-            }
-            type();
-        }
-
-        function typeWriterHTML(element, htmlText, speed) {
-            let i = 0;
-            element.innerHTML = "";
-            element.style.display = 'block';
-            
-            let regex = /(<[^>]*>|[^<]*)/g;
-            let parts = htmlText.match(regex).filter(Boolean);
-            let partIndex = 0;
-            let charIndex = 0;
-
-            function typeHTML() {
-                if (partIndex < parts.length) {
-                    let currentPart = parts[partIndex];
-                    if (currentPart.startsWith('<')) {
-                        element.innerHTML += currentPart;
-                        partIndex++;
-                        setTimeout(typeHTML, 0);
-                    } else {
-                        if (charIndex < currentPart.length) {
-                            if (currentPart.charAt(charIndex) !== ' ') playKeySound();
-                            element.innerHTML += currentPart.charAt(charIndex);
-                            charIndex++;
-                            setTimeout(typeHTML, speed);
-                        } else {
-                            charIndex = 0;
-                            partIndex++;
-                            setTimeout(typeHTML, 0);
-                        }
-                    }
-                }
-            }
-            typeHTML();
-        }
-
-        // FUNÇÃO DE REVELAÇÃO CORRIGIDA (À prova de erros)
-        function revealDirectory() {
-            // Tenta iniciar o som sem bloquear o clique se falhar
-            try {
-                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                playBeepSound();
-            } catch (e) {
-                console.log("Áudio bloqueado pelo browser");
-            }
-
-            // Mostra a secção principal imediatamente
+        // Função de clique totalmente nova e direta para quebrar o bloqueio de cache
+        function iniciarPainel() {
+            // Revela a secção oculta na hora
             document.getElementById('index-button').style.display = 'none';
             document.getElementById('main-content').style.display = 'block';
 
             const titleEl = document.getElementById('directory-title');
             const subtitleEl = document.getElementById('directory-subtitle');
             
-            // Inicia a animação de escrita de forma segura
-            typeWriterEffect(titleEl, "[ DIRETÓRIO PRINCIPAL ]", 30, function() {
-                typeWriterEffect(subtitleEl, "Insira um ID no comando em baixo para ler um ficheiro de texto:", 15, function() {
-                    document.getElementById('directory-table').style.display = 'table';
-                    document.getElementById('cmd-line').style.display = 'flex';
-                    document.getElementById('terminal-input').focus();
-                });
-            });
+            // Escreve os textos no ecrã de forma limpa
+            titleEl.innerHTML = "[ DIRETÓRIO PRINCIPAL ]";
+            subtitleEl.innerHTML = "Insira um ID no comando em baixo para ler um ficheiro de texto:";
+            
+            // Torna a tabela e o comando visíveis instantaneamente
+            document.getElementById('directory-table').style.display = 'table';
+            document.getElementById('cmd-line').style.display = 'flex';
+            document.getElementById('terminal-input').focus();
         }
 
         const ficheiros = {
+            "01": "FICHEIRO: sobre_mim.txt<br>------------------<br>Olá! Eu sou o smiles035. Desenvolvi este sistema para simular a interface de um terminal clássico da IBM lançado originalmente em 1987.",
+            "02": "FICHEIRO: notas.txt<br>-------------<br>[11/06/2026] - Sistema migrado com sucesso para o GitHub Pages.<br>[11/06/2026] - Atualizada a paleta de cores para Âmbar Fósforo.",
+            "ajuda": "SISTEMA DE AJUDA IBM 3151<br>-------------------------<br>Digite '01' para ler o ficheiro sobre_mim.txt<br>Digite '02' para ler o ficheiro notas.txt<br>Digite 'limpar' para fechar os ficheiros abertos."
+        };
+
+        const input = document.getElementById('terminal-input');
+        const outputBox = document.getElementById('output-box');
+
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const comando = input.value.trim().toLowerCase();
+                
+                if (ficheiros[comando]) {
+                    outputBox.innerHTML = ficheiros[comando];
+                    outputBox.style.display = 'block';
+                } else if (comando === 'limpar') {
+                    outputBox.style.display = 'none';
+                } else if (comando !== "") {
+                    outputBox.innerHTML = `ERRO: O ID '${comando}' não foi reconhecido pelo sistema. Digite 'ajuda' para listar as opções.`;
+                    outputBox.style.display = 'block';
+                }
+                input.value = '';
+            }
+        });
+
+        document.addEventListener('click', () => {
+            const cmdLine = document.getElementById('cmd-line');
+            if (cmdLine && cmdLine.style.display === 'flex') {
+                input.focus();
+            }
+        });
+    </script>
+</body>
+</html>
