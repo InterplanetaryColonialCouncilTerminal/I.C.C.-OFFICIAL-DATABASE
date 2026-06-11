@@ -100,7 +100,7 @@
         .input-line {
             display: flex;
             align-items: center;
-            display: none; /* Só aparece quando terminar a digitação */
+            display: none;
         }
 
         #terminal-input {
@@ -190,10 +190,18 @@
     </div>
 
     <script>
-        // --- SISTEMA DE ÁUDIO ---
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        // Declarar a variável fora para que todas as funções a consigam usar
+        let audioCtx = null;
+
+        // Função para inicializar o áudio apenas quando o utilizador interage
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
 
         function playKeySound() {
+            if (!audioCtx) return;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'triangle'; 
@@ -207,6 +215,7 @@
         }
 
         function playBeepSound() {
+            if (!audioCtx) return;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             osc.type = 'sine';
@@ -225,7 +234,6 @@
             element.innerHTML = "";
             function type() {
                 if (i < text.length) {
-                    // Ignora a reprodução de som se for apenas um espaço em branco
                     if (text.charAt(i) !== ' ') {
                         playKeySound();
                     }
@@ -239,13 +247,11 @@
             type();
         }
 
-        // Função chamada ao carregar os ficheiros no ecra
         function typeWriterHTML(element, htmlText, speed, callback) {
             let i = 0;
             element.innerHTML = "";
             element.style.display = 'block';
             
-            // Converte quebras de linha em lista para processar tags HTML corretamente
             let regex = /(<[^>]*>|[^<]*)/g;
             let parts = htmlText.match(regex).filter(Boolean);
             let partIndex = 0;
@@ -279,14 +285,15 @@
 
         // --- CONTROLO DO ÍNDICE ---
         function revealDirectory() {
-            // Esconde o botão do índice original
-            document.getElementById('index-button').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
+            // Inicializa o áudio de forma segura no clique
+            initAudio();
             playBeepSound();
 
-            // Começa a digitar o título do diretório
+            // Esconde o botão
+            document.getElementById('index-button').style.display = 'none';
+            document.getElementById('main-content').style.display = 'block';
+
             const titleEl = document.getElementById('directory-title');
             const subtitleEl = document.getElementById('directory-subtitle');
             
             typeWriterEffect(titleEl, "[ DIRETÓRIO PRINCIPAL ]", 40, function() {
-                typeWriterEffect(subtitleEl, "Insira um ID no comando em baixo para ler um ficheiro de texto:", 25, function() {
