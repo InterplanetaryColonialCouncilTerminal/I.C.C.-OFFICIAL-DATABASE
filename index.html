@@ -2,23 +2,23 @@
 <html lang="pt">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv='cache-control' content='no-cache'>
-    <meta http-equiv='expires' content='0'>
-    <meta http-equiv='pragma' content='no-cache'>
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="expires" content="0">
+    <meta http-equiv="pragma" content="no-cache">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terminal IBM 3151</title>
     <style>
         @import url('https://googleapis.com');
 
         @keyframes crt-flicker {
-            0% { opacity: 0.985; }
+            0% { opacity: 0.98; }
             50% { opacity: 1; }
             100% { opacity: 0.99; }
         }
 
         body {
             background-color: #030200; 
-            color: #ffb000; /* Âmbar IBM Clássico */
+            color: #ffb000;
             font-family: 'VT323', monospace;
             font-size: 24px;
             margin: 0;
@@ -41,16 +41,6 @@
             background-size: 100% 5px, 100% 100%;
         }
 
-        body::after {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
-            z-index: 9;
-            pointer-events: none;
-            background: radial-gradient(circle, rgba(255, 176, 0, 0.04) 0%, rgba(0,0,0,0) 70%);
-        }
-
         .terminal {
             max-width: 900px;
             margin: 0 auto;
@@ -67,7 +57,6 @@
         .retro-logo {
             max-width: 220px;
             height: auto;
-            /* Filtro avançado para transformar qualquer imagem em fósforo âmbar digitalizado */
             filter: grayscale(1) sepia(1) saturate(8) hue-rotate(5deg) brightness(1.1) contrast(1.4);
             opacity: 0.85;
         }
@@ -81,7 +70,6 @@
             padding: 10px 20px;
             cursor: pointer;
             text-shadow: 0 0 6px rgba(255, 176, 0, 0.6);
-            box-shadow: 0 0 4px rgba(255, 176, 0, 0.3);
             margin: 20px 0;
             display: inline-block;
         }
@@ -89,13 +77,7 @@
         .retro-btn:hover {
             background-color: #ffb000;
             color: #000;
-            text-shadow: none;
         }
-
-        /* Controlos de Exibição garantidos */
-        #intro-screen { display: block; }
-        #boot-header { display: none; }
-        #main-content { display: none; }
 
         table {
             width: 100%;
@@ -121,7 +103,6 @@
             font-size: 24px;
             outline: none;
             width: 100%;
-            text-shadow: 0 0 6px rgba(255, 176, 0, 0.6);
         }
 
         #output-box {
@@ -130,40 +111,35 @@
             border: 1px solid #ffb000;
             background: rgba(255, 176, 0, 0.03);
             display: none;
-            min-height: 80px;
         }
-
-        .nav-actions { margin-top: 20px; }
     </style>
 </head>
 <body>
     <div class="terminal">
-        <!-- 1. SECÇÃO DA ANIMAÇÃO DE INTRODUÇÃO -->
-        <div id="intro-screen">
-            <p id="boot-text-1"></p>
-            <p id="boot-text-2"></p>
-            <p id="boot-text-3"></p>
-            <p id="boot-text-4"></p>
-            <!-- Logótipo I.C.C. integrado de forma estável usando link direto da imagem -->
+        <!-- INTRO -->
+        <div id="intro-screen" style="display: block;">
+            <p id="boot-1"></p>
+            <p id="boot-2"></p>
+            <p id="boot-3"></p>
             <div id="logo-area" class="logo-container" style="display: none;">
                 <img src="https://googleapis.com" alt="I.C.C. Logo" class="retro-logo">
             </div>
         </div>
 
-        <!-- 2. CABEÇALHO DO SISTEMA -->
-        <div id="boot-header">
+        <!-- MENU INICIAL -->
+        <div id="boot-header" style="display: none;">
             <p>IBM 3151 ASCII DISPLAY STATION — V1.0</p>
             <p>SISTEMA OPERATIVO RETRO CARREGADO COM SUCESSO.</p>
             <hr style="border: 1px dashed #ffb000;">
-            <button id="index-button" class="retro-btn" onclick="iniciarPainel()">[ ACEDER AO DIRETÓRIO PRINCIPAL ]</button>
+            <button class="retro-btn" onclick="iniciarPainel()">[ ACEDER AO DIRETÓRIO PRINCIPAL ]</button>
         </div>
 
-        <!-- 3. PAINEL PRINCIPAL -->
-        <div id="main-content">
-            <p id="directory-title"></p>
-            <p id="directory-subtitle"></p>
+        <!-- PAINEL DE COMANDOS -->
+        <div id="main-content" style="display: none;">
+            <p>[ DIRETÓRIO PRINCIPAL ]</p>
+            <p>Insira um ID para ler um ficheiro ou 'menu' para voltar:</p>
 
-            <table id="directory-table" style="display:none;">
+            <table>
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -172,98 +148,76 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>01</td>
-                        <td>sobre_mim.txt</td>
-                        <td>Informações sobre o autor do sistema.</td>
-                    </tr>
-                    <tr>
-                        <td>02</td>
-                        <td>notas.txt</td>
-                        <td>Notas e updates do servidor.</td>
-                    </tr>
-                    <tr>
-                        <td>ajuda</td>
-                        <td>ajuda.sys</td>
-                        <td>Mostra instruções de comandos.</td>
-                    </tr>
+                    <tr><td>01</td><td>sobre_mim.txt</td><td>Informações sobre o autor.</td></tr>
+                    <tr><td>02</td><td>notas.txt</td><td>Updates do servidor.</td></tr>
+                    <tr><td>ajuda</td><td>ajuda.sys</td><td>Instruções do sistema.</td></tr>
                 </tbody>
             </table>
 
             <div id="output-box"></div>
-            
-            <div class="input-line" id="cmd-line" style="display:none;">
+            <br>
+            <div class="input-line">
                 <span>COMANDO:> &nbsp;</span>
-                <input type="text" id="terminal-input" placeholder="Digite o ID e pressione Enter..." autocomplete="off">
+                <input type="text" id="terminal-input" autocomplete="off">
             </div>
-
-            <div class="nav-actions">
-                <button id="back-button" class="retro-btn" onclick="voltarMenu()">[ VOLTAR AO INÍCIO ]</button>
-            </div>
+            <br>
+            <button class="retro-btn" onclick="voltarMenu()">[ VOLTAR AL INÍCIO ]</button>
         </div>
     </div>
 
     <script>
-        // SISTEMA DE CORRIDA DE BOOT SEM TRAVAMENTO
-        window.addEventListener('DOMContentLoaded', () => {
-            const t1 = document.getElementById('boot-text-1');
-            const t2 = document.getElementById('boot-text-2');
-            const t3 = document.getElementById('boot-text-3');
-            const t4 = document.getElementById('boot-text-4');
-            const logoArea = document.getElementById('logo-area');
-
-            // Linha 1 aparece imediatamente
-            setTimeout(() => { t1.innerHTML = "IBM BIOS CORE v0.87 - COPYRIGHT IBM CORP 1987."; }, 100);
-            
-            // Linha 2 contagem rápida da memória RAM
+        // Sequência estrita de carregamento
+        window.addEventListener('load', () => {
+            setTimeout(() => { document.getElementById('boot-1').innerHTML = "IBM BIOS CORE v0.87 - CORP 1987."; }, 200);
+            setTimeout(() => { document.getElementById('boot-2').innerHTML = "SYSTEM RAM: 640KB OK"; }, 800);
+            setTimeout(() => { 
+                document.getElementById('boot-3').innerHTML = "CONNECTING TO I.C.C. MAIN FRAME..."; 
+                document.getElementById('logo-area').style.display = "block";
+            }, 1400);
             setTimeout(() => {
-                let ram = 0;
-                let interval = setInterval(() => {
-                    ram += 64;
-                    t2.innerHTML = `TESTING SYSTEM RAM: ${ram}KB OK`;
-                    if (ram >= 640) {
-                        clearInterval(interval);
-                        
-                        // Linha 3 e o Logótipo aparecem logo após a RAM
-                        setTimeout(() => { 
-                            t3.innerHTML = "CONNECTING TO HOST AT I.C.C. REPOSITORY... ESTABLISHED."; 
-                            logoArea.style.display = "block"; 
-                        }, 100);
-                        
-                        // Linha 4 conclusão
-                        setTimeout(() => { t4.innerHTML = "BOOT SEQUENCE COMPLETE. PRESS START BUTTON."; }, 1000);
-
-                        // Avança automaticamente para o ecrã do botão
-                        setTimeout(() => {
-                            document.getElementById('intro-screen').style.display = 'none';
-                            document.getElementById('boot-header').style.display = 'block';
-                        }, 2600);
-                    }
-                }, 40);
-            }, 400);
+                document.getElementById('intro-screen').style.display = "none";
+                document.getElementById('boot-header').style.display = "block";
+            }, 3500);
         });
 
         function iniciarPainel() {
-            document.getElementById('index-button').style.display = 'none';
-            document.getElementById('main-content').style.display = 'block';
-
-            const titleEl = document.getElementById('directory-title');
-            const subtitleEl = document.getElementById('directory-subtitle');
-            
-            titleEl.innerHTML = "[ DIRETÓRIO PRINCIPAL ]";
-            subtitleEl.innerHTML = "Insira um ID no comando em baixo para ler um ficheiro de texto (ou digite 'menu' para voltar):";
-            
-            document.getElementById('directory-table').style.display = 'table';
-            document.getElementById('cmd-line').style.display = 'flex';
-            document.getElementById('output-box').style.display = 'none';
+            document.getElementById('boot-header').style.display = "none";
+            document.getElementById('main-content').style.display = "block";
+            document.getElementById('output-box').style.display = "none";
             document.getElementById('terminal-input').focus();
         }
 
         function voltarMenu() {
-            document.getElementById('main-content').style.display = 'none';
-            document.getElementById('index-button').style.display = 'inline-block';
-            document.getElementById('terminal-input').value = '';
+            document.getElementById('main-content').style.display = "none";
+            document.getElementById('boot-header').style.display = "block";
         }
 
         const ficheiros = {
-            "01": "FICHEIRO: sobre_mim.txt<br>------------------<br>Olá! Eu sou o smiles035. Desenvolvi este sistema para simular a interface de um terminal clássico da IBM lançado originalmente em 1987.",
+            "01": "FICHEIRO: sobre_mim.txt<br>------------------<br>Olá! Eu sou o smiles035. Bem-vindo à base de dados oficial da I.C.C.",
+            "02": "FICHEIRO: notas.txt<br>-------------<br>[2026] Sistema publicado com sucesso no GitHub Pages.",
+            "ajuda": "COMANDOS DISPONÍVEIS:<br>01 - abrir sobre_mim.txt<br>02 - abrir notas.txt<br>limpar - fechar texto"
+        };
+
+        const input = document.getElementById('terminal-input');
+        const outputBox = document.getElementById('output-box');
+
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const comando = input.value.trim().toLowerCase();
+                if (comando === 'menu') {
+                    voltarMenu();
+                } else if (ficheiros[comando]) {
+                    outputBox.innerHTML = ficheiros[comando];
+                    outputBox.style.display = 'block';
+                } else if (comando === 'limpar') {
+                    outputBox.style.display = 'none';
+                } else if (comando !== "") {
+                    outputBox.innerHTML = `ERRO: Comando '${comando}' inválido. Digite 'ajuda'.`;
+                    outputBox.style.display = 'block';
+                }
+                input.value = '';
+            }
+        });
+    </script>
+</body>
+</html>
