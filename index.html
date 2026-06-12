@@ -23,7 +23,7 @@
         #terminal-input { background: transparent; border: none; color: #ffb000; font-family: 'VT323', monospace; font-size: 24px; outline: none; width: 100%; text-shadow: 0 0 6px rgba(255, 176, 0, 0.6); caret-color: transparent; }
         .input-wrapper::after { content: ""; position: absolute; left: var(--cursor-pos, 0px); width: 12px; height: 24px; background: #ffb000; animation: blink 0.8s infinite; pointer-events: none; box-shadow: 0 0 6px rgba(255, 176, 0, 0.6); display: inline-block; }
         #output-box { margin-top: 20px; padding: 15px; border: 1px solid #ffb000; background: rgba(255, 176, 0, 0.03); display: none; }
-        #file-content-screen { display: none; border: 1px dashed #ffb000; padding: 25px; background: rgba(255, 176, 0, 0.02); margin-top: 20px; }
+        #file-content-screen { display: none; border: 1px dashed #ffb000; padding: 25px; background: rgba(255, 176, 0, 0.02); margin-top: 20px; white-space: pre-wrap; line-height: 1.4; }
     </style>
 </head>
 <body>
@@ -81,13 +81,36 @@
         document.getElementById('btn-access').addEventListener('click', () => { document.getElementById('boot-header').style.display = "none"; document.getElementById('main-content').style.display = "block"; document.getElementById('output-box').style.display = "none"; if (inputEl) { inputEl.focus(); updateCursor(); } });
         document.getElementById('btn-back').addEventListener('click', () => { document.getElementById('main-content').style.display = "none"; document.getElementById('boot-header').style.display = "block"; if (inputEl) inputEl.value = ""; });
         document.getElementById('btn-close-file').addEventListener('click', () => { document.getElementById('file-content-screen').style.display = "none"; document.getElementById('main-content').style.display = "block"; if (inputEl) { inputEl.focus(); updateCursor(); } });
+        
+        // FUNÇÃO CARREGADORA: Lê os ficheiros .txt externos do teu GitHub automaticamente
+        function carregarFicheiro(nomeFicheiro) {
+            fetch(nomeFicheiro)
+                .then(response => {
+                    if (!response.ok) throw new Error();
+                    return response.text();
+                })
+                .then(texto => {
+                    document.getElementById('main-content').style.display = "none";
+                    document.getElementById('file-content-screen').style.display = "block";
+                    document.getElementById('file-text-area').textContent = texto;
+                })
+                .catch(() => {
+                    const out = document.getElementById('output-box');
+                    out.style.display = "block";
+                    out.innerHTML = `ERRO CRÍTICO: Falha ao ler o ficheiro '${nomeFicheiro}' no servidor.`;
+                });
+        }
+
         if (inputEl) {
             inputEl.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
-                    const cmd = inputEl.value.trim().toLowerCase(); const out = document.getElementById('output-box'); const fileScreen = document.getElementById('file-content-screen'); const fileTextArea = document.getElementById('file-text-area'); out.style.display = "none";
-                    if (cmd === 'ajuda') { document.getElementById('main-content').style.display = "none"; fileScreen.style.display = "block"; fileTextArea.innerHTML = "<p><strong>[ SISTEMA DE AJUDA IBM ]</strong></p><p>Introduza códigos válidos na linha de comandos para ler o conteúdo dos ficheiros.</p>"; } 
+                    const cmd = inputEl.value.trim().toLowerCase(); 
+                    const out = document.getElementById('output-box'); 
+                    out.style.display = "none";
+                    
+                    if (cmd === 'ajuda') { carregarFicheiro('ajuda.txt'); } 
                     else if (cmd === 'limpar') { out.innerHTML = ""; } 
-                    else if (cmd === 'admin' || cmd === 'segredo') { document.getElementById('main-content').style.display = "none"; fileScreen.style.display = "block"; fileTextArea.innerHTML = "<p><strong>[ ACESSO CONFIDENCIAL DESBLOQUEADO ]</strong></p><p>A aguardar o log de texto do utilizador...</p>"; }
+                    else if (cmd === 'admin' || cmd === 'segredo' || cmd === 'icc-exec-001') { carregarFicheiro('icc-exec-001.txt'); }
                     else if (cmd !== "") { out.style.display = "block"; out.innerHTML = `ERRO: Comando '${cmd}' não reconhecido.`; }
                     inputEl.value = ""; updateCursor();
                 }
@@ -96,3 +119,4 @@
     </script>
 </body>
 </html>
+
