@@ -107,11 +107,11 @@
                     const out = document.getElementById('output-box'); 
                     out.style.display = "none";
                     
-                    /* Tradução dos comandos da tabela */
-                    if (cmd === 'help' || cmd === 'ajuda') { carregarFicheiro('ajuda.txt'); } 
-                    else if (cmd === 'clear' || cmd === 'limpar') { out.innerHTML = ""; } 
-                    else if (cmd === 'admin' || cmd === 'segredo' || cmd === 'icc-exec-001') { carregarFicheiro('icc-exec-001.txt'); }
-                    else if (cmd === 'swarm' || cmd === 'enxame' || cmd === 'icc-swarm-001') { carregarFicheiro('icc-swarm-001.txt'); }
+                    /* CORREÇÃO: Apenas os comandos em inglês são aceites */
+                    if (cmd === 'help') { carregarFicheiro('help.txt'); } 
+                    else if (cmd === 'clear') { out.innerHTML = ""; } 
+                    else if (cmd === 'icc-exec-001') { carregarFicheiro('icc-exec-001.txt'); }
+                    else if (cmd === 'icc-swarm-001') { carregarFicheiro('icc-swarm-001.txt'); }
                     else if (cmd !== "") { out.style.display = "block"; out.innerHTML = `ERROR: Command '${cmd}' not recognized.`; }
                     inputEl.value = ""; updateCursor();
                 }
@@ -120,4 +120,3 @@
     </script>
 </body>
 </html>
-
