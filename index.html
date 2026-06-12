@@ -24,6 +24,7 @@
         .input-wrapper::after { content: ""; position: absolute; left: var(--cursor-pos, 0px); width: 12px; height: 24px; background: #ffb000; animation: blink 0.8s infinite; pointer-events: none; box-shadow: 0 0 6px rgba(255, 176, 0, 0.6); display: inline-block; }
         #output-box { margin-top: 20px; padding: 15px; border: 1px solid #ffb000; background: rgba(255, 176, 0, 0.03); display: none; }
         #file-content-screen { display: none; border: 1px dashed #ffb000; padding: 25px; background: rgba(255, 176, 0, 0.02); margin-top: 20px; white-space: pre-wrap; line-height: 1.4; }
+        #intro-screen p { white-space: pre-wrap; margin: 4px 0; font-size: 22px; line-height: 1.3; }
     </style>
 </head>
 <body>
@@ -58,7 +59,7 @@
             <button id="btn-close-file" class="retro-btn">[ RETURN TO DIRECTORY ]</button>
         </div>
     </div>
-    <script>
+        <script>
         function typeWriter(id, text, speed, cb) {
             let i = 0; const el = document.getElementById(id); if (!el) return; el.innerHTML = "";
             function type() { if (i < text.length) { el.innerHTML += text.charAt(i); i++; setTimeout(type, speed); } else if (cb) cb(); }
@@ -68,9 +69,13 @@
         const wrapperEl = document.querySelector('.input-wrapper');
         function updateCursor() { if (inputEl && wrapperEl) wrapperEl.style.setProperty('--cursor-pos', `${110 + (inputEl.value.length * 13.2)}px`); }
         if (inputEl) inputEl.addEventListener('input', updateCursor);
+        
         function startTerminalBoot() {
-            document.getElementById('main-content').style.display = "none"; document.getElementById('boot-header').style.display = "none"; document.getElementById('static-logo').style.display = "none"; document.getElementById('file-content-screen').style.display = "none"; document.getElementById('intro-screen').style.display = "block"; document.getElementById('logo-area').style.display = "none"; document.getElementById('boot-3').innerHTML = "";
-            typeWriter("boot-1", "O.V.I.S. CORES v7.4.18 - I.C.C. 1955. > Initializing Core Processes... [OK] > Connecting to Habitat-07 Systems... [OK] > Power Grid Status........ONLINE > Atmospheric Systems......ONLINE > Security Network.........ONLINE > Medical Network..........ONLINE > Communications...........ONLINE > Scanning Personnel Registry... 2,814 Residents Located > Scanning Surface Sensors... Environmental Conditions: UNSAFE > Monitoring Active Threats... NO CONFIRMED THREATS > Directive 47-A Database... ACCESS RESTRICTED > Administrator Link... CONNECTED >class OVIS {bool habitatOnline = true; bool securityOnline = true; bool medicalOnline = true; void Startup { Print("O.V.I.S. INITIALIZING", 20, () => {
+            document.getElementById('main-content').style.display = "none"; document.getElementById('boot-header').style.display = "none"; document.getElementById('static-logo').style.display = "none"; document.getElementById('file-content-screen').style.display = "none"; document.getElementById('intro-screen').style.display = "block"; document.getElementById('logo-area').style.display = "none"; document.getElementById('boot-2').innerHTML = ""; document.getElementById('boot-3').innerHTML = "";
+            
+            const bootText = "O.V.I.S. CORES v7.4.18 - I.C.C. 1955.\n> Initializing Core Processes... [OK]\n> Connecting to Habitat-07 Systems... [OK]\n> Power Grid Status........ONLINE\n> Atmospheric Systems......ONLINE\n> Security Network.........ONLINE\n> Medical Network..........ONLINE\n> Communications...........ONLINE\n> Scanning Personnel Registry... 2,814 Residents Located\n> Scanning Surface Sensors... Environmental Conditions: UNSAFE\n> Monitoring Active Threats... NO CONFIRMED THREATS\n> Directive 47-A Database... ACCESS RESTRICTED\n> Administrator Link... CONNECTED\nclass OVIS { bool habitatOnline = true; bool securityOnline = true; };";
+
+            typeWriter("boot-1", bootText, 10, () => {
                 typeWriter("boot-2", "SYSTEM RAM: 640KB OK (SECURE CHANNEL ACTIVATED)", 10, () => {
                     document.getElementById('boot-3').innerHTML = "CONNECTING TO I.C.C. CODES CORE... ESTABLISHED."; document.getElementById('logo-area').style.display = "block";
                     setTimeout(() => { document.getElementById('intro-screen').style.display = "none"; document.getElementById('boot-header').style.display = "block"; document.getElementById('static-logo').style.display = "block"; }, 2000);
@@ -78,37 +83,23 @@
             });
         }
         window.addEventListener('DOMContentLoaded', startTerminalBoot);
+        
         document.getElementById('btn-access').addEventListener('click', () => { document.getElementById('boot-header').style.display = "none"; document.getElementById('main-content').style.display = "block"; document.getElementById('output-box').style.display = "none"; if (inputEl) { inputEl.focus(); updateCursor(); } });
         document.getElementById('btn-back').addEventListener('click', () => { document.getElementById('main-content').style.display = "none"; document.getElementById('boot-header').style.display = "block"; if (inputEl) inputEl.value = ""; });
         document.getElementById('btn-close-file').addEventListener('click', () => { document.getElementById('file-content-screen').style.display = "none"; document.getElementById('main-content').style.display = "block"; if (inputEl) { inputEl.focus(); updateCursor(); } });
         
         function carregarFicheiro(nomeFicheiro) {
             fetch(nomeFicheiro)
-                .then(response => {
-                    if (!response.ok) throw new Error();
-                    return response.text();
-                })
-                .then(texto => {
-                    document.getElementById('main-content').style.display = "none";
-                    document.getElementById('file-content-screen').style.display = "block";
-                    document.getElementById('file-text-area').textContent = texto;
-                })
-                .catch(() => {
-                    const out = document.getElementById('output-box');
-                    out.style.display = "block";
-                    out.innerHTML = `CRITICAL ERROR: Failed to read file '${nomeFicheiro}' from server.`;
-                });
+                .then(response => { if (!response.ok) throw new Error(); return response.text(); })
+                .then(texto => { document.getElementById('main-content').style.display = "none"; document.getElementById('file-content-screen').style.display = "block"; document.getElementById('file-text-area').textContent = texto; })
+                .catch(() => { const out = document.getElementById('output-box'); out.style.display = "block"; out.innerHTML = `CRITICAL ERROR: Failed to read file '${nomeFicheiro}' from server.`; });
         }
 
         if (inputEl) {
             inputEl.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
-                    const cmd = inputEl.value.trim().toLowerCase(); 
-                    const out = document.getElementById('output-box'); 
-                    out.style.display = "none";
-                    
-                    /* CORREÇÃO: Apenas os comandos em inglês são aceites */
-                    if (cmd === 'help') { carregarFicheiro('Help.txt'); } 
+                    const cmd = inputEl.value.trim().toLowerCase(); const out = document.getElementById('output-box'); out.style.display = "none";
+                    if (cmd === 'help') { carregarFicheiro('help.txt'); } 
                     else if (cmd === 'clear') { out.innerHTML = ""; } 
                     else if (cmd === 'icc-exec-001') { carregarFicheiro('icc-exec-001.txt'); }
                     else if (cmd === 'icc-swarm-001') { carregarFicheiro('icc-swarm-001.txt'); }
