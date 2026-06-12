@@ -11,7 +11,10 @@
         body { background-color: #030200; color: #ffb000; font-family: 'VT323', monospace; font-size: 24px; margin: 0; padding: 40px 20px; box-sizing: border-box; text-shadow: 0 0 6px rgba(255, 176, 0, 0.6); animation: crt-flicker 0.15s infinite; }
         body::before { content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0; z-index: 10; pointer-events: none; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.45) 50%), radial-gradient(circle, rgba(0,0,0,0) 40%, rgba(0,0,0,0.85) 100%); background-size: 100% 5px, 100% 100%; }
         .terminal { max-width: 900px; margin: 0 auto; position: relative; z-index: 2; }
-        .corner-logo { position: absolute; top: -20px; right: 0; max-width: 120px; height: auto; mix-blend-mode: screen; filter: brightness(1.2) contrast(1.5) sepia(1) saturate(12) hue-rotate(5deg); opacity: 0.85; display: none; }
+        
+        /* CORREÇÃO: Alinhamento perfeito do logótipo no canto superior direito */
+        .corner-logo { position: absolute; top: 0px; right: 20px; max-width: 120px; height: auto; mix-blend-mode: screen; filter: brightness(1.2) contrast(1.5) sepia(1) saturate(12) hue-rotate(5deg); opacity: 0.85; display: none; }
+        
         .logo-container { display: block; margin: 25px auto; text-align: center; }
         .retro-logo { max-width: 260px; height: auto; mix-blend-mode: screen; filter: brightness(1.2) contrast(1.5) sepia(1) saturate(12) hue-rotate(5deg); opacity: 0.9; }
         .retro-btn { background: transparent; border: 2px solid #ffb000; color: #ffb000; font-family: 'VT323', monospace; font-size: 26px; padding: 10px 20px; cursor: pointer; text-shadow: 0 0 6px rgba(255, 176, 0, 0.6); margin: 20px 0; display: inline-block; }
@@ -82,7 +85,6 @@
         document.getElementById('btn-back').addEventListener('click', () => { document.getElementById('main-content').style.display = "none"; document.getElementById('boot-header').style.display = "block"; if (inputEl) inputEl.value = ""; });
         document.getElementById('btn-close-file').addEventListener('click', () => { document.getElementById('file-content-screen').style.display = "none"; document.getElementById('main-content').style.display = "block"; if (inputEl) { inputEl.focus(); updateCursor(); } });
         
-        // FUNÇÃO CARREGADORA: Lê os ficheiros .txt externos do teu GitHub automaticamente
         function carregarFicheiro(nomeFicheiro) {
             fetch(nomeFicheiro)
                 .then(response => {
@@ -119,4 +121,3 @@
     </script>
 </body>
 </html>
-
