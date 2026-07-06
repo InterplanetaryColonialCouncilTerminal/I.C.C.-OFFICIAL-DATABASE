@@ -287,6 +287,34 @@
                     if (currentMode === "COMMAND") {
                         if (cmd === 'help') { carregarFicheiro('help.txt'); } 
                         else if (cmd === 'clear') { playTerminalSound('enter'); out.innerHTML = ""; } 
+                        else if (
+                            cmd === 'hi' || cmd === 'hey' || cmd === 'hello' || cmd.includes('say hello') ||
+                            cmd === 'yo' || cmd === 'sup' || cmd === 'greetings' || cmd === 'howdy' ||
+                            cmd === 'salutations' || cmd === 'oi' || cmd === 'ola' || cmd === 'hola' ||
+                            cmd === 'good morning' || cmd === 'good afternoon' || cmd === 'good evening' ||
+                            cmd.includes('whats up') || cmd.includes('what up') || cmd === 'hi there' ||
+                            cmd === 'hello there'
+                        ) {
+                            initAudio();
+                            if (audioCtx && audioCtx.state !== 'suspended') {
+                                const now = audioCtx.currentTime;
+                                let osc1 = audioCtx.createOscillator();
+                                let gain1 = audioCtx.createGain();
+                                osc1.type = 'sine'; osc1.frequency.setValueAtTime(880, now);
+                                gain1.gain.setValueAtTime(0.01, now); gain1.gain.exponentialRampToValueAtTime(0.00001, now + 0.05);
+                                osc1.connect(gain1); gain1.connect(audioCtx.destination);
+                                osc1.start(now); osc1.stop(now + 0.05);
+                                
+                                let osc2 = audioCtx.createOscillator();
+                                let gain2 = audioCtx.createGain();
+                                osc2.type = 'sine'; osc2.frequency.setValueAtTime(1109, now + 0.04);
+                                gain2.gain.setValueAtTime(0.01, now + 0.04); gain2.gain.exponentialRampToValueAtTime(0.00001, now + 0.10);
+                                osc2.connect(gain2); gain2.connect(audioCtx.destination);
+                                osc2.start(now + 0.04); osc2.stop(now + 0.10);
+                            }
+                            out.style.display = "block";
+                            runTypewriter(out, "\n[O.V.I.S. OVERLOAD PROTOCOL]\nSTATUS: ACTIVE\nGREETINGS, OPERATOR. REPOSITORY SUBSYSTEM IS LISTENING.", 6);
+                        }
                         else if (cmd === 'icc-exec-001' || cmd === 'icc-swarm-001') {
                             playTerminalSound('error');
                             pendingFile = cmd + ".txt"; 
@@ -300,7 +328,6 @@
                             out.style.display = "block"; 
                             runTypewriter(out, `ERROR: Command '${cmd}' not recognized.`, 8); 
                         }
-                    } 
                     else if (currentMode === "PASSWORD") {
                         if (cmd === "1955") {
                             playTerminalSound('enter');
