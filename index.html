@@ -52,7 +52,7 @@
         </div>
         
         <div id="main-content" style="display: none;">
-            <!-- 1. STATUS & TIME BAR -->
+            <!-- STATUS & TIME BAR -->
             <div style="display: flex; justify-content: space-between; font-size: 18px; margin-bottom: 15px; border-bottom: 1px solid rgba(255,176,0,0.3); padding-bottom: 5px;">
                 <span>SYS_STATUS: ONLINE</span>
                 <span id="live-clock">TIME: 00:00:00</span>
@@ -79,15 +79,8 @@
     </div>
 
     <script>
-        // --- Game Stand-In Data (Allows fallback if server file is missing) ---
-        const localFiles = {
-            'help.txt': "AVAILABLE COMMANDS:\nHELP          Display this documentation.\nCLEAR         Purge screen buffers.\nICC-EXEC-001  [RESTRICTED DIRECTIVE]\nICC-SWARM-001 [RESTRICTED PROJECT DATA]",
-            'icc-exec-001.txt': "ACCESS GRANTED - DECLASSIFIED EXECUTIVE MEMO [1955]:\n\nHabitat-07 was built to withstand architectural atmospheric containment failures.\nHowever, document 47-A states that surface radiation levels will remain critical for approximately 150 more years. Do not inform residents.",
-            'icc-swarm-001.txt': "ACCESS GRANTED - TECHNICAL SWARM REPORT:\n\nWarning: The autonomous containment protocols in Sector 4 are fluctuating.\nNanite hives are currently dormant, but if security protocols fail, local atmosphere processing will completely cease."
-        };
-
         // --- System State Management ---
-        let currentMode = "COMMAND"; // Modes: COMMAND, PASSWORD
+        let currentMode = "COMMAND"; 
         let pendingFile = "";
         let idleTimer = null;
 
@@ -122,7 +115,7 @@
             }
         }
 
-        // --- 1. Real-Time Clock System ---
+        // --- Real-Time Clock System ---
         function runClock() {
             setInterval(() => {
                 const clockEl = document.getElementById('live-clock');
@@ -133,7 +126,7 @@
             }, 1000);
         }
 
-        // --- 2. Matrices & Glitch Screensaver ---
+        // --- Matrices Screensaver ---
         const canvas = document.getElementById('screensaver');
         const ctx = canvas.getContext('2d');
         let columns = [];
@@ -169,7 +162,6 @@
                 playTerminalSound('enter');
             }
             clearTimeout(idleTimer);
-            // Triggers screensaver after 30 seconds of pure inactivity
             idleTimer = setTimeout(() => {
                 canvas.style.display = "block";
                 resizeCanvas();
@@ -179,7 +171,7 @@
         window.addEventListener('mousemove', resetIdleTimer);
         window.addEventListener('keydown', resetIdleTimer);
 
-        // --- 3. Simulated Decryption Progress Engine ---
+        // --- Simulated Decryption Progress Engine ---
         function triggerDecryptionSequence(fileContent) {
             const mainContent = document.getElementById('main-content');
             const fileScreen = document.getElementById('file-content-screen');
@@ -208,7 +200,7 @@
             }, 100);
         }
 
-        // --- Standard Typewriter Logic ---
+        // --- Typewriter Logic ---
         function typeWriter(id, text, speed, cb) {
             let i = 0; const el = document.getElementById(id); if (!el) return; el.innerHTML = "";
             function type() { 
@@ -257,20 +249,22 @@
         document.getElementById('btn-back').addEventListener('click', () => { playTerminalSound('click'); document.getElementById('main-content').style.display = "none"; document.getElementById('boot-header').style.display = "block"; if (inputEl) { inputEl.value = ""; currentMode = "COMMAND"; promptLabel.textContent = "COMMAND:> "; updateCursor(); } });
         document.getElementById('btn-close-file').addEventListener('click', () => { playTerminalSound('click'); document.getElementById('file-content-screen').style.display = "none"; document.getElementById('main-content').style.display = "block"; if (inputEl) { inputEl.focus(); updateCursor(); } });
         
+        // --- Dynamic GitHub File Fetcher ---
         function carregarFicheiro(nomeFicheiro) {
-            // Check stand-in storage first so it works fully offline/locally
-            if(localFiles[nomeFicheiro]) {
-                triggerDecryptionSequence(localFiles[nomeFicheiro]);
-                return;
-            }
-
             fetch(nomeFicheiro)
                 .then(response => { if (!response.ok) throw new Error(); return response.text(); })
-                .then(texto => { triggerDecryptionSequence(texto); })
-                .catch(() => { const out = document.getElementById('output-box'); playTerminalSound('error'); out.style.display = "block"; out.innerHTML = `CRITICAL ERROR: Failed to read file '${nomeFicheiro}' from server.`; });
+                .then(texto => { 
+                    // Runs the decryption loading animation with your true file text data!
+                    triggerDecryptionSequence(texto); 
+                })
+                .catch(() => { 
+                    const out = document.getElementById('output-box'); 
+                    playTerminalSound('error'); 
+                    out.style.display = "block"; 
+                    out.innerHTML = `CRITICAL ERROR: Failed to read file '${nomeFicheiro}' from server.`; 
+                });
         }
 
-        // --- 5. Custom Command Line & Password Interception Logic ---
         if (inputEl) {
             inputEl.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -282,10 +276,10 @@
                     if (currentMode === "COMMAND") {
                         if (cmd === 'help') { carregarFicheiro('help.txt'); } 
                         else if (cmd === 'clear') { playTerminalSound('enter'); out.innerHTML = ""; } 
-                        // Intercept Restricted Documents and throw password challenge
+                        // Intercept password-protected file requests
                         else if (cmd === 'icc-exec-001' || cmd === 'icc-swarm-001') {
                             playTerminalSound('error');
-                            pendingFile = cmd + ".txt";
+                            pendingFile = cmd + ".txt"; // Save the exact file target
                             currentMode = "PASSWORD";
                             promptLabel.textContent = "ENTER 4-DIGIT PIN:> ";
                             out.style.display = "block";
@@ -294,12 +288,11 @@
                         else if (cmd !== "") { playTerminalSound('error'); out.style.display = "block"; out.innerHTML = `ERROR: Command '${cmd}' not recognized.`; }
                     } 
                     else if (currentMode === "PASSWORD") {
-                        // The passcode is hidden as the lore foundation inside your boot sequence (1955)
                         if (cmd === "1955") {
                             playTerminalSound('enter');
                             currentMode = "COMMAND";
                             promptLabel.textContent = "COMMAND:> ";
-                            carregarFicheiro(pendingFile);
+                            carregarFicheiro(pendingFile); // Fetches your raw text file from GitHub
                         } else {
                             playTerminalSound('error');
                             currentMode = "COMMAND";
