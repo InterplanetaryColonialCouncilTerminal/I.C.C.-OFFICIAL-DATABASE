@@ -116,6 +116,35 @@
             }
         }
 
+        // Retro Robotic TTS Engine (SAM Simulation)
+        function speakLikeSAM(phrase) {
+            if ('speechSynthesis' in window) {
+                // Cancel anything currently speaking to prevent queuing issues
+                window.speechSynthesis.cancel();
+                
+                const utterance = new SpeechSynthesisUtterance(phrase);
+                
+                // Get all available system voices
+                const voices = window.speechSynthesis.getVoices();
+                
+                // Try to target classic robotic sounding system engines if available
+                const robotVoice = voices.find(v => 
+                    v.name.toLowerCase().includes('microsoft david') || 
+                    v.name.toLowerCase().includes('google us english') || 
+                    v.name.toLowerCase().includes('zira')
+                );
+                
+                if (robotVoice) utterance.voice = robotVoice;
+
+                // Configure robotic modulation properties
+                utterance.pitch = 0.2; // Super low mechanical pitch
+                utterance.rate = 0.65;  // Slow, robotic syntax pacing
+                utterance.volume = 1.0; // Max volume
+                
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
         // --- Generalized Typewriter Engine ---
         function runTypewriter(elementOrId, text, speed, cb) {
             if (typewriterTimeout) clearTimeout(typewriterTimeout);
@@ -244,6 +273,9 @@
         function startTerminalBoot() {
             runClock();
             resetIdleTimer();
+            // Pre-load system speech profiles early for cleaner cross-browser processing
+            if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
+            
             document.getElementById('main-content').style.display = "none"; document.getElementById('boot-header').style.display = "none"; document.getElementById('static-logo').style.display = "none"; document.getElementById('file-content-screen').style.display = "none"; document.getElementById('intro-screen').style.display = "block"; document.getElementById('logo-area').style.display = "none"; document.getElementById('boot-2').innerHTML = ""; document.getElementById('boot-3').innerHTML = "";
             
             const bootText = "O.V.I.S. CORES v7.4.18 - I.C.C. 1955.\n> Initializing Core Processes... [OK]\n> Connecting to Habitat-07 Systems... [OK]\n> Power Grid Status........ONLINE\n> Atmospheric Systems......ONLINE\n> Security Network.........ONLINE\n> Medical Network..........ONLINE\n> Communications...........ONLINE\n> Scanning Personnel Registry... 2,814 Residents Located\n> Scanning Surface Sensors... Environmental Conditions: UNSAFE\n> Monitoring Active Threats... NO CONFIRMED THREATS\n> Directive 47-A Database... ACCESS RESTRICTED\n> Administrator Link... CONNECTED\nclass OVIS { bool habitatOnline = true; bool securityOnline = true; };";
@@ -294,6 +326,7 @@
                             cmd.includes('whats up') || cmd.includes('what up') || cmd === 'hi there' ||
                             cmd === 'hello there'
                         ) {
+                            // First, play your classic electronic chime sound effect
                             initAudio();
                             if (audioCtx && audioCtx.state !== 'suspended') {
                                 const now = audioCtx.currentTime;
@@ -311,8 +344,12 @@
                                 osc2.connect(gain2); gain2.connect(audioCtx.destination);
                                 osc2.start(now + 0.04); osc2.stop(now + 0.10);
                             }
+                            
+                            // Trigger the vintage robotic speech simulation!
+                            speakLikeSAM("Greetings, hello operator.");
+                            
                             out.style.display = "block";
-                            runTypewriter(out, "\n[O.V.I.S. OVERLOAD PROTOCOL]\nSTATUS: ACTIVE\nGREETINGS, OPERATOR. REPOSITORY SUBSYSTEM IS LISTENING.", 6);
+                            runTypewriter(out, "\n[HELLO WORLD]\nTERMINAL STATUS: ACTIVE\nGREETINGS, HELLO OPERATOR.", 6);
                         }
                         else if (cmd === 'icc-exec-001' || cmd === 'icc-swarm-001') {
                             playTerminalSound('error');
