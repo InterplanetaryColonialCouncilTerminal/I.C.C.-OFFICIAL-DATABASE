@@ -91,6 +91,7 @@
         let idleTimer = null;
         let typewriterTimeout = null; 
         let audioCtx = null;
+        let activeAudio = null; // Track currently playing song
 
         function initAudio() {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -119,7 +120,6 @@
             }
         }
 
-        // --- File-based Audio Player ---
         function playAudioFile(filename) {
             const audio = new Audio(filename);
             audio.play().catch(e => console.log("Audio play blocked."));
@@ -249,9 +249,20 @@
                     const cmd = rawInput.toLowerCase();
                     const out = document.getElementById('output-box'); 
                     out.style.display = "none";
+
+                    // Stop previous song if a new command is entered
+                    if (activeAudio) { activeAudio.pause(); activeAudio.currentTime = 0; }
+
                     if (currentMode === "COMMAND") {
                         if (cmd === 'help') { carregarFicheiro('help.txt'); } 
                         else if (cmd === 'clear') { playTerminalSound('enter'); out.innerHTML = ""; } 
+                        // SINGING COMMAND
+                        else if (cmd === 'sing' || cmd === 'sing for me') {
+                            activeAudio = new Audio('daisy.mp3'); 
+                            activeAudio.play();
+                            out.style.display = "block"; 
+                            runTypewriter(out, "\n[O.V.I.S. AUDIO SUBSYSTEM: ACTIVE]\nDaisy, Daisy, give me your answer, do...", 6);
+                        }
                         else if (cmd === 'hi' || cmd === 'hey' || cmd === 'hello' || cmd.includes('say hello') || cmd === 'yo' || cmd === 'sup' || cmd === 'greetings' || cmd === 'howdy' || cmd === 'salutations' || cmd === 'oi' || cmd === 'ola' || cmd === 'hola' || cmd === 'good morning' || cmd === 'good afternoon' || cmd === 'good evening' || cmd.includes('whats up') || cmd.includes('what up') || cmd === 'hi there' || cmd === 'hello there') {
                             playAudioFile('hello.mp3');
                             out.style.display = "block"; runTypewriter(out, "\n[O.V.I.S. CHANNEL: ACTIVE]\nGOOD MORNING, OPERATOR EVERYTHING IS RUNNING SMOOTHLY.", 6);
