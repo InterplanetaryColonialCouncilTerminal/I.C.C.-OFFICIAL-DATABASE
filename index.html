@@ -43,6 +43,7 @@
     <img id="static-logo" src="logo.png" alt="Logo" class="corner-logo">
     
     <div class="terminal">
+        <!-- New Primary System Interactivity Interaction Frame -->
         <div id="power-on-screen" class="power-screen">
             <p>I.C.C. MAINFRAME STATION 07</p>
             <p>SYSTEM ACCESS REQUIRES USER PERMISSION INITIALIZATION</p>
@@ -124,17 +125,18 @@
             }
         }
 
-        // Sci-Fi Mainframe TTS Engine (GLaDOS / Mother Simulation)
+        // Sci-Fi Mainframe TTS Engine (GLaDOS / Mother Calibration V2)
         function speakLikeSAM(phrase) {
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 
-                // Formulate phonetic staccato pacing for mechanical mainframe simulation
-                const processedPhrase = phrase.toUpperCase().replace(/, /g, ". ... ");
+                // Formulate phonetic staccato pacing with longer, calculated gaps
+                // This breaks up the natural human flow that makes it sound too young
+                const processedPhrase = phrase.toUpperCase().replace(/, /g, "... ... ").replace(/ /g, "... ");
                 const utterance = new SpeechSynthesisUtterance(processedPhrase);
                 const voices = window.speechSynthesis.getVoices();
                 
-                // Prioritize smooth, higher-registered female system synthesizers
+                // Prioritize mature, clear female system engines
                 const mainframeVoice = voices.find(v => 
                     v.name.toLowerCase().includes('zira') || 
                     v.name.toLowerCase().includes('google uk english female') ||
@@ -145,9 +147,9 @@
                 
                 if (mainframeVoice) utterance.voice = mainframeVoice;
 
-                // Mainframe calibration profiles (Cold, high, algorithmic flat tone)
-                utterance.pitch = 1.45; // Eerie high-pitch mainframe calibration
-                utterance.rate = 0.60;  // Deliberate, mechanical computation speech speed
+                // Mainframe re-calibration profiles (Deeper, slower, calculation-heavy)
+                utterance.pitch = 0.95; // Dropped below 1.0 to add a cold, mature, mechanical weight
+                utterance.rate = 0.52;  // Significantly slowed down to force a calculating cadence
                 utterance.volume = 1.0; 
                 
                 window.speechSynthesis.speak(utterance);
