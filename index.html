@@ -15,7 +15,7 @@
         .terminal { max-width: 900px; margin: 0 auto; position: relative; z-index: 2; padding-top: 40px; }
         .corner-logo { position: fixed; top: 30px; right: 40px; max-width: 90px; height: auto; mix-blend-mode: screen; filter: brightness(1.2) contrast(1.5) sepia(1) saturate(12) hue-rotate(5deg); opacity: 0.85; display: none; z-index: 5; }
         .logo-container { display: block; margin: 25px auto; text-align: center; }
-        .retro-logo { max-width: 260px; height: auto; mix-blend-mode: screen; filter: brightness(1.2) contrast(1.5) sepia(1) saturate(12) hue-rotate(5deg); opacity: 0.9; }
+        .retro-logo { max-width: 260px; height: auto; mix-blend-mode: screen; filter: brightness(1.2) contrast(1.5) saturate(12) hue-rotate(5deg); opacity: 0.9; }
         
         .power-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; }
         
@@ -130,79 +130,32 @@
             }
         }
 
-        // --- Software Automatic Mouth (SAM) Hardware Synthesis Simulator ---
-        function speakLikeSAM(phrase) {
-            if (!audioCtx) return;
-            const now = audioCtx.currentTime;
-            
-            // Phonetic timing mapped to simple word structures
-            const words = phrase.toUpperCase().split(" ");
-            let baseTime = now + 0.1;
-
-            // Simplified 8-bit allophone frequency dictionary mapping basic characters to robotic formants
-            const formants = {
-                'G': { f1: 300, f2: 1800, type: 'square' },
-                'R': { f1: 350, f2: 1300, type: 'square' },
-                'E': { f1: 400, f2: 2000, type: 'sawtooth' },
-                'T': { f1: 150, f2: 2500, type: 'triangle' },
-                'I': { f1: 250, f2: 2200, type: 'sawtooth' },
-                'N': { f1: 250, f2: 1000, type: 'square' },
-                'S': { f1: 100, f2: 3500, type: 'triangle' },
-                'H': { f1: 200, f2: 3000, type: 'triangle' },
-                'L': { f1: 300, f2: 1500, type: 'square' },
-                'O': { f1: 500, f2: 900,  type: 'square' },
-                'P': { f1: 200, f2: 1200, type: 'square' },
-                'A': { f1: 700, f2: 1200, type: 'sawtooth' }
-            };
-
-            words.forEach((word) => {
-                // Approximate SAM's vintage 8-bit duration (roughly 75ms per character slice)
-                const charDuration = 0.075;
+        // --- HAL 9000 Vocal Emulation Matrix ---
+        function speakLikeHAL(phrase) {
+            if ('speechSynthesis' in window) {
+                window.speechSynthesis.cancel();
                 
-                for (let i = 0; i < word.length; i++) {
-                    const char = word[i];
-                    const cfg = formants[char] || { f1: 400, f2: 1500, type: 'square' };
-                    
-                    // Generate primary low vocal chord pulse
-                    const osc1 = audioCtx.createOscillator();
-                    // Generate higher frequency mouth cavity resonance 
-                    const osc2 = audioCtx.createOscillator();
-                    
-                    const gainNode = audioCtx.createGain();
-                    const filter = audioCtx.createBiquadFilter();
+                const utterance = new SpeechSynthesisUtterance(phrase);
+                const voices = window.speechSynthesis.getVoices();
+                
+                // Prioritize smooth, deep, mature male speech synthesis profiles
+                const halVoice = voices.find(v => 
+                    v.name.toLowerCase().includes('david') || 
+                    v.name.toLowerCase().includes('microsoft david') ||
+                    v.name.toLowerCase().includes('google us english male') ||
+                    v.name.toLowerCase().includes('male') ||
+                    v.name.toLowerCase().includes('premium')
+                );
+                
+                if (halVoice) utterance.voice = halVoice;
 
-                    osc1.type = cfg.type;
-                    // SAM's vintage pitch engine locked to a cold, robotic monotone (around 90Hz)
-                    osc1.frequency.setValueAtTime(92, baseTime);
-                    
-                    osc2.type = 'square';
-                    osc2.frequency.setValueAtTime(cfg.f2, baseTime);
-
-                    // Recreate vintage bitcrushed/subtractive synthesis filtering
-                    filter.type = 'bandpass';
-                    filter.frequency.setValueAtTime(cfg.f1, baseTime);
-                    filter.Q.setValueAtTime(4, baseTime);
-
-                    gainNode.gain.setValueAtTime(0, baseTime);
-                    gainNode.gain.linearRampToValueAtTime(0.08, baseTime + 0.01);
-                    gainNode.gain.setValueAtTime(0.08, baseTime + charDuration - 0.01);
-                    gainNode.gain.linearRampToValueAtTime(0, baseTime + charDuration);
-
-                    osc1.connect(filter);
-                    osc2.connect(filter);
-                    filter.connect(gainNode);
-                    gainNode.connect(audioCtx.destination);
-
-                    osc1.start(baseTime);
-                    osc2.start(baseTime);
-                    osc1.stop(baseTime + charDuration);
-                    osc2.stop(baseTime + charDuration);
-
-                    baseTime += charDuration;
-                }
-                // Enforce a severe mechanical delay between distinct word sets
-                baseTime += 0.18; 
-            });
+                // HAL 9000 Signature Vocal Settings:
+                utterance.pitch = 0.68; // Severely compressed pitch down to a warm, flat baritone monotone
+                utterance.rate = 0.72;  // Deliberate, smooth, unhurried speaking tempo (creepy calmness)
+                utterance.volume = 1.0; 
+                
+                window.speechSynthesis.speak(utterance);
+            }
         }
 
         // --- Generalized Typewriter Engine ---
@@ -379,6 +332,7 @@
         function startTerminalBoot() {
             runClock();
             resetIdleTimer();
+            if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
             
             document.getElementById('intro-screen').style.display = "block";
             
@@ -429,11 +383,11 @@
                             cmd.includes('whats up') || cmd.includes('what up') || cmd === 'hi there' ||
                             cmd === 'hello there'
                         ) {
-                            // Synthesize SAM Voice Output
-                            speakLikeSAM("greetings hello operator");
+                            // HAL 9000 Calm Monotone Delivery Triggers
+                            speakLikeHAL("Good morning, operator. Everything is running smoothly.");
                             
                             out.style.display = "block";
-                            runTypewriter(out, "\n[HELLO WORLD]\nTERMINAL STATUS: ACTIVE\nGREETINGS, HELLO OPERATOR.", 6);
+                            runTypewriter(out, "\n[HELLO WORLD]\nTERMINAL STATUS: ACTIVE\nGOOD MORNING, OPERATOR. EVERYTHING IS RUNNING SMOOTHLY.", 6);
                         }
                         else if (cmd === 'icc-exec-001' || cmd === 'icc-swarm-001') {
                             playTerminalSound('error');
@@ -460,7 +414,8 @@
                             currentMode = "COMMAND";
                             promptLabel.textContent = "COMMAND:> ";
                             out.style.display = "block";
-                            runTypewriter(out, "ACCESS DENIED: INVALID AUTHORIZATION TERMINAL KEY. RESETTING CONTEXT.", 8);
+                            runTypewriter(out, "I am sorry, operator. I'm afraid I can't do that. Invalid access key.", 8);
+                            speakLikeHAL("I am sorry, operator. I am afraid I can't do that.");
                         }
                     }
                     inputEl.value = ""; updateCursor();
