@@ -16,6 +16,9 @@
         .corner-logo { position: fixed; top: 30px; right: 40px; max-width: 90px; height: auto; mix-blend-mode: screen; filter: brightness(1.2) contrast(1.5) sepia(1) saturate(12) hue-rotate(5deg); opacity: 0.85; display: none; z-index: 5; }
         .logo-container { display: block; margin: 25px auto; text-align: center; }
         .retro-logo { max-width: 260px; height: auto; mix-blend-mode: screen; filter: brightness(1.2) contrast(1.5) sepia(1) saturate(12) hue-rotate(5deg); opacity: 0.9; }
+        
+        .power-screen { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; text-align: center; }
+        
         .retro-btn { background: transparent; border: 2px solid #ffb000; color: #ffb000; font-family: 'VT323', monospace; font-size: 26px; padding: 10px 20px; cursor: pointer; text-shadow: 0 0 6px rgba(255, 176, 0, 0.6); margin: 20px 0; display: inline-block; }
         .retro-btn:hover { background-color: #ffb000; color: #000; }
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
@@ -39,7 +42,13 @@
     <img id="static-logo" src="logo.png" alt="Logo" class="corner-logo">
     
     <div class="terminal">
-        <div id="intro-screen">
+        <div id="power-on-screen" class="power-screen">
+            <p>I.C.C. MAINFRAME STATION 07</p>
+            <p>SYSTEM ACCESS REQUIRES USER PERMISSION INITIALIZATION</p>
+            <button id="btn-power" class="retro-btn">[ INITIALIZE CORE SYSTEM POWER ]</button>
+        </div>
+
+        <div id="intro-screen" style="display: none;">
             <p id="boot-1"></p><p id="boot-2"></p><p id="boot-3"></p>
             <div id="logo-area" class="logo-container" style="display: none;"><img src="logo.png" alt="Logo" class="retro-logo"></div>
         </div>
@@ -82,7 +91,7 @@
         let currentMode = "COMMAND"; 
         let pendingFile = "";
         let idleTimer = null;
-        let typewriterTimeout = null; // Track current running print sequences
+        let typewriterTimeout = null; 
 
         // --- Audio System Setup ---
         let audioCtx = null;
@@ -92,7 +101,6 @@
         }
 
         function playTerminalSound(type) {
-            initAudio();
             if (!audioCtx || audioCtx.state === 'suspended') return;
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
@@ -101,7 +109,6 @@
 
             if (type === 'click') {
                 osc.type = 'triangle'; osc.frequency.setValueAtTime(600, now);
-                // Volume set precisely to 0.1
                 gain.gain.setValueAtTime(0.1, now); gain.gain.exponentialRampToValueAtTime(0.00001, now + 0.03);
                 osc.start(now); osc.stop(now + 0.03);
             } else if (type === 'enter') {
@@ -116,30 +123,31 @@
             }
         }
 
-        // Retro Robotic TTS Engine (SAM Simulation)
+        // Sci-Fi Mainframe TTS Engine (GLaDOS / Mother Simulation)
         function speakLikeSAM(phrase) {
             if ('speechSynthesis' in window) {
-                // Cancel anything currently speaking to prevent queuing issues
                 window.speechSynthesis.cancel();
                 
-                const utterance = new SpeechSynthesisUtterance(phrase);
-                
-                // Get all available system voices
+                // Formulate phonetic staccato pacing for mechanical mainframe simulation
+                const processedPhrase = phrase.toUpperCase().replace(/, /g, ". ... ");
+                const utterance = new SpeechSynthesisUtterance(processedPhrase);
                 const voices = window.speechSynthesis.getVoices();
                 
-                // Try to target classic robotic sounding system engines if available
-                const robotVoice = voices.find(v => 
-                    v.name.toLowerCase().includes('microsoft david') || 
-                    v.name.toLowerCase().includes('google us english') || 
-                    v.name.toLowerCase().includes('zira')
+                // Prioritize smooth, higher-registered female system synthesizers
+                const mainframeVoice = voices.find(v => 
+                    v.name.toLowerCase().includes('zira') || 
+                    v.name.toLowerCase().includes('google uk english female') ||
+                    v.name.toLowerCase().includes('hazel') ||
+                    v.name.toLowerCase().includes('female') ||
+                    v.name.toLowerCase().includes('google us english')
                 );
                 
-                if (robotVoice) utterance.voice = robotVoice;
+                if (mainframeVoice) utterance.voice = mainframeVoice;
 
-                // Configure robotic modulation properties
-                utterance.pitch = 0.2; // Super low mechanical pitch
-                utterance.rate = 0.65;  // Slow, robotic syntax pacing
-                utterance.volume = 1.0; // Max volume
+                // Mainframe calibration profiles (Cold, high, algorithmic flat tone)
+                utterance.pitch = 1.45; // Eerie high-pitch mainframe calibration
+                utterance.rate = 0.60;  // Deliberate, mechanical computation speech speed
+                utterance.volume = 1.0; 
                 
                 window.speechSynthesis.speak(utterance);
             }
@@ -212,7 +220,6 @@
             if (canvas.style.display === "block") {
                 canvas.style.display = "none";
                 clearInterval(screensaverInterval);
-                initAudio();
                 playTerminalSound('enter');
             }
             clearTimeout(idleTimer);
@@ -273,10 +280,9 @@
         function startTerminalBoot() {
             runClock();
             resetIdleTimer();
-            // Pre-load system speech profiles early for cleaner cross-browser processing
             if ('speechSynthesis' in window) window.speechSynthesis.getVoices();
             
-            document.getElementById('main-content').style.display = "none"; document.getElementById('boot-header').style.display = "none"; document.getElementById('static-logo').style.display = "none"; document.getElementById('file-content-screen').style.display = "none"; document.getElementById('intro-screen').style.display = "block"; document.getElementById('logo-area').style.display = "none"; document.getElementById('boot-2').innerHTML = ""; document.getElementById('boot-3').innerHTML = "";
+            document.getElementById('intro-screen').style.display = "block";
             
             const bootText = "O.V.I.S. CORES v7.4.18 - I.C.C. 1955.\n> Initializing Core Processes... [OK]\n> Connecting to Habitat-07 Systems... [OK]\n> Power Grid Status........ONLINE\n> Atmospheric Systems......ONLINE\n> Security Network.........ONLINE\n> Medical Network..........ONLINE\n> Communications...........ONLINE\n> Scanning Personnel Registry... 2,814 Residents Located\n> Scanning Surface Sensors... Environmental Conditions: UNSAFE\n> Monitoring Active Threats... NO CONFIRMED THREATS\n> Directive 47-A Database... ACCESS RESTRICTED\n> Administrator Link... CONNECTED\nclass OVIS { bool habitatOnline = true; bool securityOnline = true; };";
 
@@ -287,9 +293,15 @@
                 });
             });
         }
-        window.addEventListener('DOMContentLoaded', startTerminalBoot);
+
+        document.getElementById('btn-power').addEventListener('click', () => {
+            initAudio(); 
+            document.getElementById('power-on-screen').style.display = "none";
+            playTerminalSound('enter');
+            startTerminalBoot(); 
+        });
         
-        document.getElementById('btn-access').addEventListener('click', () => { initAudio(); playTerminalSound('enter'); document.getElementById('boot-header').style.display = "none"; document.getElementById('main-content').style.display = "block"; document.getElementById('output-box').style.display = "none"; if (inputEl) { inputEl.focus(); updateCursor(); } });
+        document.getElementById('btn-access').addEventListener('click', () => { playTerminalSound('enter'); document.getElementById('boot-header').style.display = "none"; document.getElementById('main-content').style.display = "block"; document.getElementById('output-box').style.display = "none"; if (inputEl) { inputEl.focus(); updateCursor(); } });
         document.getElementById('btn-back').addEventListener('click', () => { playTerminalSound('click'); document.getElementById('main-content').style.display = "none"; document.getElementById('boot-header').style.display = "block"; if (inputEl) { inputEl.value = ""; currentMode = "COMMAND"; promptLabel.textContent = "COMMAND:> "; updateCursor(); } });
         document.getElementById('btn-close-file').addEventListener('click', () => { playTerminalSound('click'); if(typewriterTimeout) clearTimeout(typewriterTimeout); document.getElementById('file-content-screen').style.display = "none"; document.getElementById('main-content').style.display = "block"; if (inputEl) { inputEl.focus(); updateCursor(); } });
         
@@ -326,8 +338,6 @@
                             cmd.includes('whats up') || cmd.includes('what up') || cmd === 'hi there' ||
                             cmd === 'hello there'
                         ) {
-                            // First, play your classic electronic chime sound effect
-                            initAudio();
                             if (audioCtx && audioCtx.state !== 'suspended') {
                                 const now = audioCtx.currentTime;
                                 let osc1 = audioCtx.createOscillator();
@@ -345,7 +355,6 @@
                                 osc2.start(now + 0.04); osc2.stop(now + 0.10);
                             }
                             
-                            // Trigger the vintage robotic speech simulation!
                             speakLikeSAM("Greetings, hello operator.");
                             
                             out.style.display = "block";
