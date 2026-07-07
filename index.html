@@ -39,14 +39,14 @@
     
     <div class="terminal">
         <div id="power-on-screen" class="power-screen">
-            <p>I.C.C. MAINFRAME STATION 07</p>
+            <p>I.C.C. HABITAT-07 TERMINAL</p>
             <p>SYSTEM ACCESS REQUIRES USER PERMISSION INITIALIZATION</p>
             <div id="login-error-msg" style="color: #ff3333; text-shadow: 0 0 6px rgba(255, 51, 51, 0.6); height: 30px; margin-top: 15px;"></div>
             <div class="login-box" id="login-box-container">
                 <span>IDENTITY PIN:&nbsp;</span>
                 <input type="text" id="login-input" autocomplete="off" max-length="12" placeholder="">
             </div>
-            <p style="font-size: 18px; margin-top: 15px; opacity: 0.7;">[ Press Enter to Authenticate ]</p>
+            <p style="font-size: 18px; margin-top: 15px; opacity: 0.7;">[ Press Enter to Authenticate the User ]</p>
         </div>
 
         <div id="intro-screen" style="display: none;">
@@ -254,7 +254,7 @@
                         else if (cmd === 'clear') { playTerminalSound('enter'); out.innerHTML = ""; } 
                         else if (cmd === 'hi' || cmd === 'hey' || cmd === 'hello' || cmd.includes('say hello') || cmd === 'yo' || cmd === 'sup' || cmd === 'greetings' || cmd === 'howdy' || cmd === 'salutations' || cmd === 'oi' || cmd === 'ola' || cmd === 'hola' || cmd === 'good morning' || cmd === 'good afternoon' || cmd === 'good evening' || cmd.includes('whats up') || cmd.includes('what up') || cmd === 'hi there' || cmd === 'hello there') {
                             playAudioFile('hello.mp3');
-                            out.style.display = "block"; runTypewriter(out, "\n[AUDIO CHANNEL: ACTIVE]\nGREETINGS, OPERATOR.", 6);
+                            out.style.display = "block"; runTypewriter(out, "\n[O.V.I.S. CHANNEL: ACTIVE]\nGOOD MORNING, OPERATOR EVERYTHING IS RUNNING SMOOTHLY.", 6);
                         } else if (cmd === 'icc-exec-001' || cmd === 'icc-swarm-001') {
                             playTerminalSound('error'); pendingFile = cmd + ".txt"; currentMode = "PASSWORD"; promptLabel.textContent = "ENTER 4-DIGIT PIN:> "; out.style.display = "block"; runTypewriter(out, "WARNING: ENCRYPTED PROFILE DETECTED. AUTHORIZATION CODE REQUIRED.", 8);
                         } else if (cmd !== "") { 
