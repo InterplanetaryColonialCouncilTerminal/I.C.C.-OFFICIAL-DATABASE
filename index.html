@@ -31,7 +31,6 @@
         #output-box { margin-top: 20px; padding: 15px; border: 1px solid #ffb000; background: rgba(255, 176, 0, 0.03); display: none; white-space: pre-wrap; }
         #screensaver { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #030200; z-index: 100; }
         
-        /* FIXED: Using Flexbox for side-by-side layout */
         #file-content-screen { display: none; border: 1px dashed #ffb000; padding: 25px; background: rgba(255, 176, 0, 0.02); margin-top: 20px; display: none; flex-direction: row; gap: 25px; align-items: flex-start; }
         #file-image-display { display: none; border: 2px solid #ffb000; width: 200px; height: auto; flex-shrink: 0; box-shadow: 0 0 15px rgba(255, 176, 0, 0.3); animation: crt-flicker 0.15s infinite; }
         #file-text-wrapper { flex: 1; white-space: pre-wrap; }
@@ -70,13 +69,12 @@
                 <span>SYS_STATUS: ONLINE</span>
                 <span id="live-clock">TIME: 00:00:00</span>
             </div>
-            <p>[ I.C.C. SECRET DIRECTORY ]</p>
+            <p>[ I.C.C. PUBLIC DIRECTORY ]</p>
             <table>
                 <thead><tr><th>ID</th><th>FILE NAME</th><th>ACCESS STATUS</th></tr></thead>
                 <tbody>
                     <tr><td>help</td><td>help.sys</td><td>PUBLIC</td></tr>
                     <tr><td>clear</td><td>clear.sys</td><td>PUBLIC</td></tr>
-                    <tr><td>icc-exec-001</td><td>icc-exec-001.txt</td><td>RESTRICTED</td></tr>
                 </tbody>
             </table>
             <div id="output-box"></div><br>
@@ -189,7 +187,7 @@
             imgDisplay.style.display = (filename === 'icc-exec-001.txt') ? "block" : "none";
 
             mainContent.style.display = "none"; 
-            fileScreen.style.display = "flex"; // Ensure it is flex
+            fileScreen.style.display = "flex";
             
             let percent = 0;
             const interval = setInterval(() => {
