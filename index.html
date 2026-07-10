@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>I.C.C. Terminal</title>
+    <title>I.C.C. TERMINAL</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
         @keyframes crt-flicker { 0% { opacity: 0.98; } 50% { opacity: 1; } 100% { opacity: 0.99; } }
@@ -58,7 +58,7 @@
         </div>
         
         <div id="boot-header" style="display: none;">
-            <p>I.C.C. DATABASE DISPLAY STATION — V1.0</p>
+            <p>I.C.C. DATABASE DISPLAY TERMINAL — V1.0</p>
             <p>O.V.I.S. OPERATING SYSTEM LOADED SUCCESSFULLY.</p>
             <hr style="border: 1px dashed #ffb000;">
             <button id="btn-access" class="retro-btn">[ ACCESS MAIN DIRECTORY ]</button>
@@ -238,7 +238,7 @@
             document.getElementById('intro-screen').style.display = "block";
             const bootText = "O.V.I.S. CORES v7.4.18 - I.C.C. 1955.\n> Initializing Core Processes... [OK]\n> Connecting to Habitat-07 Systems... [OK]\n> Power Grid Status........ONLINE\n> Atmospheric Systems......ONLINE\n> Security Network.........ONLINE\n> Medical Network..........ONLINE\n> Communications...........ONLINE\n> Scanning Personnel Registry... 2,814 Residents Located\n> Scanning Surface Sensors... Environmental Conditions: UNSAFE\n> Monitoring Active Threats... NO CONFIRMED THREATS\n> Directive 47-A Database... ACCESS RESTRICTED\n> Administrator Link... CONNECTED\nclass OVIS { bool habitatOnline = true; bool securityOnline = true; };";
             runTypewriter("boot-1", bootText, 6, () => {
-                runTypewriter("boot-2", "SYSTEM RAM: 640KB OK (SECURE CHANNEL ACTIVATED)", 6, () => {
+                runTypewriter("boot-2", "SYS_RAM: 640KB OK (SECURE CHANNEL ACTIVATED)", 6, () => {
                     document.getElementById('boot-3').innerHTML = "CONNECTING TO I.C.C. CODES CORE... ESTABLISHED.";
                     document.getElementById('logo-area').style.display = "block";
                     setTimeout(() => { document.getElementById('intro-screen').style.display = "none"; document.getElementById('boot-header').style.display = "block"; document.getElementById('static-logo').style.display = "block"; }, 1500);
