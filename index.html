@@ -29,11 +29,12 @@
         #terminal-input { background: transparent; border: none; color: #ffb000; font-family: 'VT323', monospace; font-size: 24px; outline: none; width: 100%; text-shadow: 0 0 6px rgba(255, 176, 0, 0.6); caret-color: transparent; }
         .input-wrapper::after { content: ""; position: absolute; left: var(--cursor-pos, 0px); width: 12px; height: 24px; background: #ffb000; animation: blink 0.8s infinite; pointer-events: none; box-shadow: 0 0 6px rgba(255, 176, 0, 0.6); display: inline-block; }
         #output-box { margin-top: 20px; padding: 15px; border: 1px solid #ffb000; background: rgba(255, 176, 0, 0.03); display: none; white-space: pre-wrap; }
-        #file-content-screen { display: none; border: 1px dashed #ffb000; padding: 25px; background: rgba(255, 176, 0, 0.02); margin-top: 20px; white-space: pre-wrap; line-height: 1.4; }
-        #screensaver { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #030200; z-index: 100; }
         
-        /* NEW STYLES FOR IMAGE */
-        #file-image-display { display: none; margin: 20px auto; border: 2px solid #ffb000; max-width: 400px; box-shadow: 0 0 15px rgba(255, 176, 0, 0.3); animation: crt-flicker 0.15s infinite; }
+        #file-content-screen { display: none; border: 1px dashed #ffb000; padding: 25px; background: rgba(255, 176, 0, 0.02); margin-top: 20px; flex-direction: row; gap: 20px; align-items: flex-start; }
+        #file-text-wrapper { flex: 1; }
+        
+        #file-image-display { display: none; border: 2px solid #ffb000; width: 250px; height: auto; box-shadow: 0 0 15px rgba(255, 176, 0, 0.3); animation: crt-flicker 0.15s infinite; flex-shrink: 0; }
+        #screensaver { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #030200; z-index: 100; }
     </style>
 </head>
 <body>
@@ -85,13 +86,14 @@
         
         <div id="file-content-screen">
             <img id="file-image-display" src="varn2.png" alt="Personnel File Data">
-            <div id="file-text-area"></div><br><hr style="border: 1px dashed #ffb000;"><br>
-            <button id="btn-close-file" class="retro-btn">[ RETURN TO DIRECTORY ]</button>
+            <div id="file-text-wrapper">
+                <div id="file-text-area"></div><br><hr style="border: 1px dashed #ffb000;"><br>
+                <button id="btn-close-file" class="retro-btn">[ RETURN TO DIRECTORY ]</button>
+            </div>
         </div>
     </div>
 
     <script>
-        // ... (Keep all your existing JS variables) ...
         let currentMode = "COMMAND"; 
         let pendingFile = "";
         let idleTimer = null;
@@ -178,21 +180,17 @@
         }
         window.addEventListener('mousemove', resetIdleTimer); window.addEventListener('keydown', resetIdleTimer);
 
-        // MODIFIED: Accepts filename to show image
         function triggerDecryptionSequence(fileContent, filename) {
             const mainContent = document.getElementById('main-content');
             const fileScreen = document.getElementById('file-content-screen');
             const fileTextArea = document.getElementById('file-text-area');
             const imgDisplay = document.getElementById('file-image-display');
             
-            // Show image only for this file
-            if (filename === 'icc-exec-001.txt') {
-                imgDisplay.style.display = "block";
-            } else {
-                imgDisplay.style.display = "none";
-            }
+            imgDisplay.style.display = (filename === 'icc-exec-001.txt') ? "block" : "none";
 
-            mainContent.style.display = "none"; fileScreen.style.display = "block"; 
+            mainContent.style.display = "none"; 
+            fileScreen.style.display = "flex"; 
+            
             let percent = 0;
             const interval = setInterval(() => {
                 percent += 5; let barCount = Math.floor(percent / 5); let blocks = "█".repeat(barCount) + "░".repeat(20 - barCount);
@@ -253,7 +251,6 @@
         document.getElementById('btn-access').addEventListener('click', () => { playTerminalSound('enter'); document.getElementById('boot-header').style.display = "none"; document.getElementById('main-content').style.display = "block"; if (inputEl) inputEl.focus(); });
         document.getElementById('btn-back').addEventListener('click', () => { playTerminalSound('click'); document.getElementById('main-content').style.display = "none"; document.getElementById('boot-header').style.display = "block"; if (inputEl) { inputEl.value = ""; currentMode = "COMMAND"; promptLabel.textContent = "COMMAND:> "; } });
         
-        // MODIFIED: Close button now also hides image
         document.getElementById('btn-close-file').addEventListener('click', () => { 
             playTerminalSound('click'); 
             if(typewriterTimeout) clearTimeout(typewriterTimeout); 
